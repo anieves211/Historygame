@@ -1,0 +1,1122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Imperium — Historical Grand Strategy</title>
+<style>
+/* ── RESET & BASE ───────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; overflow: hidden; }
+body {
+  font-family: 'Georgia', 'Times New Roman', serif;
+  background: #2c2416;
+  color: #3b2f1e;
+}
+
+/* ── SCREENS ────────────────────────────────────────────── */
+.screen {
+  display: none;
+  width: 100%; height: 100%;
+  position: absolute; top: 0; left: 0;
+}
+.screen.active { display: flex; }
+
+/* ── ERA SELECTION ──────────────────────────────────────── */
+#era-screen {
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(180deg, #3b2f1e 0%, #5c4a32 100%);
+  gap: 40px;
+}
+#era-screen h1 {
+  font-size: 52px;
+  color: #e8d5b0;
+  text-shadow: 2px 3px 6px rgba(0,0,0,0.5);
+  letter-spacing: 6px;
+  text-transform: uppercase;
+}
+#era-screen .subtitle {
+  color: #b8a080;
+  font-size: 16px;
+  margin-top: -30px;
+  letter-spacing: 2px;
+}
+.era-cards { display: flex; gap: 40px; }
+.era-card {
+  width: 320px;
+  padding: 40px 30px;
+  background: #f5ecd7;
+  border: 3px solid #8a7a60;
+  border-radius: 6px;
+  cursor: pointer;
+  text-align: center;
+  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+.era-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  border-color: #c0a060;
+}
+.era-card h2 { font-size: 26px; margin-bottom: 8px; color: #3b2f1e; }
+.era-card .era-date { font-size: 18px; color: #7a6a50; margin-bottom: 16px; }
+.era-card p { font-size: 14px; color: #5c4a32; line-height: 1.5; }
+
+/* ── FACTION SELECTION ──────────────────────────────────── */
+#faction-screen {
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding-top: 40px;
+  background: linear-gradient(180deg, #3b2f1e 0%, #5c4a32 100%);
+  gap: 24px;
+  overflow-y: auto;
+}
+#faction-screen h1 {
+  font-size: 36px;
+  color: #e8d5b0;
+  letter-spacing: 4px;
+}
+.back-btn {
+  position: absolute; top: 20px; left: 20px;
+  background: none; border: 2px solid #8a7a60; color: #c0a060;
+  padding: 8px 18px; font-family: inherit; font-size: 14px;
+  cursor: pointer; border-radius: 4px; transition: background 0.2s;
+}
+.back-btn:hover { background: rgba(192,160,96,0.15); }
+.faction-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 220px);
+  gap: 16px;
+  padding-bottom: 40px;
+}
+.faction-card {
+  padding: 20px 16px;
+  background: #f5ecd7;
+  border: 3px solid #8a7a60;
+  border-radius: 6px;
+  cursor: pointer;
+  text-align: center;
+  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.25);
+}
+.faction-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.35);
+}
+.faction-card .faction-color {
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  margin: 0 auto 10px;
+  border: 2px solid #5c4a32;
+}
+.faction-card h3 { font-size: 18px; color: #3b2f1e; margin-bottom: 6px; }
+.faction-card .faction-desc {
+  font-size: 12px; color: #6a5a40; line-height: 1.4; margin-bottom: 10px;
+  min-height: 34px;
+}
+.faction-card .faction-stats {
+  font-size: 11px; color: #8a7a60; line-height: 1.6;
+}
+.faction-card .faction-stats span { display: block; }
+
+/* ── GAME SCREEN LAYOUT ────────────────────────────────── */
+#game-screen { flex-direction: column; background: #4a3c28; }
+
+/* Top bar */
+.top-bar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 8px 20px; background: #3b2f1e;
+  border-bottom: 2px solid #6a5a40;
+  color: #e8d5b0; font-size: 14px;
+  min-height: 44px; flex-shrink: 0;
+}
+.top-bar .section { display: flex; gap: 24px; align-items: center; }
+.top-bar .label { color: #a89070; font-size: 12px; }
+.top-bar .value { font-size: 16px; font-weight: bold; }
+
+/* Main area */
+.game-main { display: flex; flex: 1; overflow: hidden; }
+
+/* Map */
+.map-container {
+  flex: 1; overflow: auto;
+  display: flex; align-items: center; justify-content: center;
+  background: #c4b594;
+  background-image:
+    radial-gradient(ellipse at 20% 50%, rgba(180,160,120,0.4) 0%, transparent 70%),
+    radial-gradient(ellipse at 80% 30%, rgba(160,140,100,0.3) 0%, transparent 70%);
+  position: relative;
+}
+.map-canvas { position: relative; }
+
+/* Province hex cell */
+.province {
+  position: absolute;
+  border: 2px solid rgba(60,45,25,0.6);
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  text-align: center;
+  font-size: 9px; font-weight: bold;
+  color: rgba(0,0,0,0.7);
+  transition: filter 0.15s;
+  clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
+  user-select: none;
+}
+.province:hover { filter: brightness(1.15); z-index: 10; }
+.province.selected {
+  border: 3px solid #fff; filter: brightness(1.2); z-index: 11;
+}
+.province.highlight-attack { animation: pulseRed 0.8s infinite; }
+.province.highlight-friendly { animation: pulseGreen 0.8s infinite; }
+.province .prov-name {
+  pointer-events: none;
+  text-shadow: 1px 1px 2px rgba(255,255,255,0.6);
+  font-size: 8px; line-height: 1.1;
+  padding: 2px; max-width: 90%; overflow: hidden;
+}
+.province .reinforced-icon {
+  position: absolute; top: 2px; right: 8px;
+  font-size: 10px; pointer-events: none;
+}
+.province .army-badge {
+  position: absolute; bottom: 4px;
+  font-size: 8px; pointer-events: none;
+  background: rgba(0,0,0,0.35); color: #fff;
+  padding: 1px 4px; border-radius: 3px;
+}
+
+@keyframes pulseRed {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(192,57,43,0.5); }
+  50% { box-shadow: 0 0 12px 4px rgba(192,57,43,0.7); }
+}
+@keyframes pulseGreen {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(39,174,96,0.4); }
+  50% { box-shadow: 0 0 10px 3px rgba(39,174,96,0.6); }
+}
+
+/* Right sidebar */
+.sidebar {
+  width: 260px; background: #f5ecd7;
+  border-left: 2px solid #8a7a60;
+  padding: 16px; display: flex; flex-direction: column;
+  gap: 12px; overflow-y: auto; flex-shrink: 0;
+}
+.sidebar h3 {
+  font-size: 16px; color: #3b2f1e;
+  border-bottom: 1px solid #c0a060; padding-bottom: 4px;
+}
+.sidebar .detail-row {
+  display: flex; justify-content: space-between;
+  font-size: 13px; color: #5c4a32; padding: 3px 0;
+}
+.sidebar .detail-row .val { font-weight: bold; }
+.sidebar .actions { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
+.action-btn {
+  padding: 10px; font-family: inherit; font-size: 13px;
+  border: 2px solid #8a7a60; background: #e8d5b0; color: #3b2f1e;
+  cursor: pointer; border-radius: 4px; transition: background 0.2s;
+}
+.action-btn:hover:not(:disabled) { background: #d4c4a0; }
+.action-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.action-btn.end-turn {
+  background: #c0392b; color: #fff; border-color: #922b21;
+  font-size: 15px; font-weight: bold; margin-top: auto;
+}
+.action-btn.end-turn:hover { background: #a93226; }
+.action-btn.cancel { background: #7a6a50; color: #fff; border-color: #5c4a32; }
+
+/* Bottom log */
+.bottom-log {
+  height: 100px; background: #3b2f1e;
+  border-top: 2px solid #6a5a40;
+  padding: 8px 16px; overflow-y: auto; flex-shrink: 0;
+  color: #c0a060; font-size: 12px; line-height: 1.6;
+}
+.bottom-log .log-entry { border-bottom: 1px solid rgba(106,90,64,0.3); padding: 2px 0; }
+.bottom-log .log-entry.combat { color: #e74c3c; }
+.bottom-log .log-entry.income { color: #82c91e; }
+.bottom-log .log-entry.ai { color: #a89070; }
+
+/* ── COMBAT POPUP ───────────────────────────────────────── */
+.combat-overlay {
+  display: none; position: fixed;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(0,0,0,0.6); z-index: 1000;
+  align-items: center; justify-content: center;
+}
+.combat-overlay.active { display: flex; }
+.combat-popup {
+  background: #f5ecd7; border: 3px solid #8a7a60;
+  border-radius: 8px; padding: 30px 40px; text-align: center;
+  max-width: 420px; box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+}
+.combat-popup h2 { font-size: 22px; color: #3b2f1e; margin-bottom: 16px; }
+.combat-popup .combat-detail {
+  font-size: 14px; color: #5c4a32; line-height: 1.7;
+  margin-bottom: 16px; text-align: left;
+}
+.combat-popup .combat-result { font-size: 20px; font-weight: bold; margin-bottom: 16px; }
+.combat-popup .combat-result.win { color: #27ae60; }
+.combat-popup .combat-result.lose { color: #c0392b; }
+.combat-popup button {
+  padding: 10px 30px; font-family: inherit; font-size: 14px;
+  border: 2px solid #8a7a60; background: #e8d5b0; color: #3b2f1e;
+  cursor: pointer; border-radius: 4px;
+}
+.combat-popup button:hover { background: #d4c4a0; }
+
+/* ── GAME OVER ──────────────────────────────────────────── */
+#gameover-screen {
+  flex-direction: column; align-items: center; justify-content: center;
+  background: rgba(44,36,22,0.95); gap: 20px; z-index: 2000;
+}
+#gameover-screen h1 { font-size: 48px; color: #e8d5b0; letter-spacing: 4px; }
+#gameover-screen .go-subtitle { font-size: 22px; color: #c0a060; }
+#gameover-screen .go-summary {
+  color: #a89070; font-size: 16px; line-height: 1.8; text-align: center;
+}
+#gameover-screen button {
+  margin-top: 20px; padding: 14px 40px; font-family: inherit;
+  font-size: 16px; border: 2px solid #c0a060;
+  background: transparent; color: #e8d5b0;
+  cursor: pointer; border-radius: 4px;
+}
+#gameover-screen button:hover { background: rgba(192,160,96,0.15); }
+
+/* ── TOOLTIP ────────────────────────────────────────────── */
+.tooltip {
+  display: none; position: fixed;
+  background: #3b2f1e; color: #e8d5b0;
+  padding: 8px 12px; border-radius: 4px;
+  font-size: 12px; line-height: 1.5;
+  pointer-events: none; z-index: 500;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+  max-width: 200px;
+}
+.tooltip.visible { display: block; }
+</style>
+</head>
+<body>
+
+<!-- ERA SELECTION -->
+<div id="era-screen" class="screen active">
+  <h1>IMPERIUM</h1>
+  <p class="subtitle">A Historical Grand Strategy Game</p>
+  <div class="era-cards">
+    <div class="era-card" onclick="selectEra('antiquity')">
+      <h2>Antiquity</h2>
+      <div class="era-date">~200 BC</div>
+      <p>The Mediterranean world stands divided between ambitious empires. Rome rises in the west, while ancient kingdoms struggle for dominance across three continents.</p>
+    </div>
+    <div class="era-card" onclick="selectEra('napoleonic')">
+      <h2>Napoleonic Wars</h2>
+      <div class="era-date">~1805 AD</div>
+      <p>Europe trembles as Napoleon reshapes the continent. Ancient monarchies form coalitions against revolutionary France, while empires jockey for supremacy.</p>
+    </div>
+  </div>
+</div>
+
+<!-- FACTION SELECTION -->
+<div id="faction-screen" class="screen">
+  <button class="back-btn" onclick="showScreen('era-screen')">&larr; Back</button>
+  <h1 id="faction-era-title"></h1>
+  <div id="faction-grid" class="faction-grid"></div>
+</div>
+
+<!-- GAME SCREEN -->
+<div id="game-screen" class="screen">
+  <div class="top-bar">
+    <div class="section">
+      <div><span class="label">Turn</span><br><span class="value" id="turn-num">1</span></div>
+      <div><span class="label">Faction</span><br><span class="value" id="player-name">—</span></div>
+    </div>
+    <div class="section">
+      <div><span class="label">Treasury</span><br><span class="value" id="treasury">0</span> gold</div>
+      <div><span class="label">Income</span><br><span class="value" id="income">0</span>/turn</div>
+      <div><span class="label">Actions</span><br><span class="value" id="actions">3</span>/3</div>
+      <div><span class="label">Provinces</span><br><span class="value" id="prov-count">0</span></div>
+    </div>
+  </div>
+  <div class="game-main">
+    <div class="map-container" id="map-container">
+      <div class="map-canvas" id="map-canvas"></div>
+    </div>
+    <div class="sidebar" id="sidebar">
+      <h3>Province Details</h3>
+      <div id="province-info">
+        <p style="color:#8a7a60; font-size:13px;">Click a province to see details.</p>
+      </div>
+      <div id="province-actions" class="actions"></div>
+      <button class="action-btn end-turn" id="end-turn-btn" onclick="endTurn()">End Turn</button>
+    </div>
+  </div>
+  <div class="bottom-log" id="log"></div>
+</div>
+
+<!-- GAME OVER -->
+<div id="gameover-screen" class="screen">
+  <h1 id="go-title">VICTORY</h1>
+  <div class="go-subtitle" id="go-subtitle"></div>
+  <div class="go-summary" id="go-summary"></div>
+  <button onclick="location.reload()">Play Again</button>
+</div>
+
+<!-- COMBAT POPUP -->
+<div class="combat-overlay" id="combat-overlay">
+  <div class="combat-popup" id="combat-popup">
+    <h2 id="combat-title">Battle</h2>
+    <div class="combat-detail" id="combat-detail"></div>
+    <div class="combat-result" id="combat-result"></div>
+    <button onclick="closeCombat()">Continue</button>
+  </div>
+</div>
+
+<!-- TOOLTIP -->
+<div class="tooltip" id="tooltip"></div>
+
+<script>
+/* ================================================================
+   IMPERIUM — Historical Grand Strategy Game
+   All phases: selection, map, economy, combat, AI, win/lose
+   ================================================================ */
+
+// ── ERA & FACTION DATA ──────────────────────────────────────────
+
+const ERAS = {
+  antiquity: {
+    name: 'Antiquity — 200 BC',
+    factions: {
+      rome:      { name: 'Rome',       color: '#c0392b', desc: 'A rising republic with disciplined legions and grand ambitions.',   treasury: 30, startArmy: 5, startProv: 4 },
+      carthage:  { name: 'Carthage',   color: '#8e44ad', desc: 'A wealthy trading empire commanding the western Mediterranean.',     treasury: 35, startArmy: 4, startProv: 3 },
+      greece:    { name: 'Greece',      color: '#2980b9', desc: 'The cradle of civilization, fragmented but culturally supreme.',      treasury: 20, startArmy: 3, startProv: 2 },
+      macedonia: { name: 'Macedonia',   color: '#d4ac0d', desc: 'Heirs of Alexander, clinging to a once-great empire.',               treasury: 25, startArmy: 4, startProv: 3 },
+      egypt:     { name: 'Egypt',       color: '#e67e22', desc: 'The ancient kingdom of the Nile, rich in grain and gold.',           treasury: 35, startArmy: 3, startProv: 3 },
+      persia:    { name: 'Persia',      color: '#1abc9c', desc: 'The Seleucid remnant — vast lands stretching deep into Asia.',       treasury: 30, startArmy: 4, startProv: 4 },
+      gaul:      { name: 'Gaul',        color: '#27ae60', desc: 'Fierce Celtic tribes united by a common disdain for outsiders.',     treasury: 15, startArmy: 4, startProv: 3 },
+      numidia:   { name: 'Numidia',     color: '#d35400', desc: 'Desert horsemen and raiders along the African coast.',               treasury: 15, startArmy: 3, startProv: 2 },
+    },
+    provinces: [
+      // Britannia
+      { id:'britannia_s', name:'Britannia',       col:1, row:0, owner:'neutral', income:1, defense:3, army:2 },
+      { id:'britannia_n', name:'Caledonia',        col:0, row:0, owner:'neutral', income:1, defense:3, army:2 },
+      // Gaul
+      { id:'gaul_nw',     name:'Armorica',         col:1, row:1, owner:'gaul',    income:1, defense:2, army:4 },
+      { id:'gaul_ne',     name:'Belgica',           col:2, row:1, owner:'gaul',    income:1, defense:2, army:3 },
+      { id:'gaul_s',      name:'Aquitania',         col:1, row:2, owner:'neutral', income:2, defense:1, army:2 },
+      { id:'gaul_c',      name:'Lugdunensis',       col:2, row:2, owner:'gaul',    income:2, defense:2, army:4 },
+      // Iberia
+      { id:'iberia_w',    name:'Hispania Occ.',     col:0, row:3, owner:'neutral', income:1, defense:2, army:2 },
+      { id:'iberia_e',    name:'Hispania Cit.',     col:1, row:3, owner:'neutral', income:2, defense:2, army:2 },
+      { id:'iberia_s',    name:'Baetica',            col:1, row:4, owner:'neutral', income:2, defense:1, army:2 },
+      // Narbonensis / Corsica
+      { id:'narbonensis', name:'Narbonensis',        col:2, row:3, owner:'neutral', income:2, defense:1, army:2 },
+      { id:'corsica',     name:'Corsica',            col:3, row:3, owner:'neutral', income:1, defense:1, army:1 },
+      // Germania
+      { id:'germania_w',  name:'Germania Inf.',      col:3, row:0, owner:'neutral', income:1, defense:3, army:3 },
+      { id:'germania_e',  name:'Germania Sup.',      col:4, row:0, owner:'neutral', income:1, defense:3, army:3 },
+      { id:'raetia',      name:'Raetia',              col:3, row:1, owner:'neutral', income:1, defense:3, army:2 },
+      // Italy
+      { id:'cisalpina',   name:'Cisalpine Gaul',     col:3, row:2, owner:'rome',    income:2, defense:2, army:4 },
+      { id:'italia_c',    name:'Italia',              col:4, row:3, owner:'rome',    income:3, defense:3, army:5 },
+      { id:'italia_s',    name:'Magna Graecia',       col:4, row:4, owner:'rome',    income:2, defense:2, army:4 },
+      { id:'sicilia',     name:'Sicilia',              col:4, row:5, owner:'rome',    income:2, defense:1, army:3 },
+      // Carthage / N. Africa
+      { id:'carthage_city', name:'Carthage',          col:3, row:4, owner:'carthage', income:3, defense:3, army:5 },
+      { id:'africa_prov',   name:'Africa Prov.',      col:3, row:5, owner:'carthage', income:2, defense:2, army:4 },
+      { id:'numidia_w',     name:'Numidia Occ.',      col:2, row:5, owner:'numidia',  income:1, defense:2, army:3 },
+      { id:'numidia_e',     name:'Numidia Or.',        col:2, row:4, owner:'numidia',  income:1, defense:2, army:3 },
+      { id:'mauretania',    name:'Mauretania',         col:1, row:5, owner:'neutral',  income:1, defense:2, army:2 },
+      { id:'tripolitania',  name:'Tripolitania',       col:4, row:6, owner:'carthage', income:1, defense:1, army:3 },
+      { id:'cyrenaica',     name:'Cyrenaica',          col:5, row:6, owner:'neutral',  income:1, defense:1, army:2 },
+      // Illyria / Balkans
+      { id:'illyria',     name:'Illyria',              col:5, row:2, owner:'neutral', income:1, defense:2, army:2 },
+      { id:'dalmatia',    name:'Dalmatia',             col:5, row:3, owner:'neutral', income:1, defense:2, army:2 },
+      // Macedonia & Greece
+      { id:'epirus',       name:'Epirus',              col:5, row:4, owner:'macedonia', income:1, defense:2, army:3 },
+      { id:'macedonia_p',  name:'Macedonia',           col:6, row:3, owner:'macedonia', income:2, defense:3, army:5 },
+      { id:'thessaly',     name:'Thessaly',            col:6, row:4, owner:'macedonia', income:2, defense:2, army:3 },
+      { id:'achaea',       name:'Achaea',              col:6, row:5, owner:'greece',    income:2, defense:2, army:3 },
+      { id:'athens',       name:'Athens',              col:7, row:4, owner:'greece',    income:3, defense:2, army:4 },
+      { id:'crete',        name:'Crete',               col:7, row:6, owner:'neutral',  income:1, defense:1, army:1 },
+      // Thrace & Dacia
+      { id:'dacia',        name:'Dacia',               col:6, row:1, owner:'neutral', income:1, defense:3, army:3 },
+      { id:'moesia',       name:'Moesia',              col:6, row:2, owner:'neutral', income:1, defense:2, army:2 },
+      { id:'thrace',       name:'Thrace',              col:7, row:2, owner:'neutral', income:1, defense:2, army:2 },
+      // Scythia
+      { id:'scythia',      name:'Scythia',             col:8, row:0, owner:'neutral', income:1, defense:3, army:2 },
+      { id:'colchis',      name:'Colchis',             col:9, row:0, owner:'neutral', income:1, defense:3, army:2 },
+      // Asia Minor
+      { id:'bithynia',     name:'Bithynia',            col:8, row:2, owner:'neutral', income:2, defense:2, army:2 },
+      { id:'asia_minor',   name:'Asia Minor',          col:8, row:3, owner:'persia',  income:2, defense:2, army:3 },
+      { id:'lycia',        name:'Lycia',               col:8, row:4, owner:'neutral', income:1, defense:1, army:2 },
+      { id:'pontus',       name:'Pontus',              col:9, row:1, owner:'neutral', income:1, defense:3, army:3 },
+      { id:'cappadocia',   name:'Cappadocia',          col:9, row:2, owner:'persia',  income:1, defense:2, army:3 },
+      { id:'cilicia',      name:'Cilicia',             col:9, row:3, owner:'neutral', income:1, defense:1, army:2 },
+      // Levant / Near East
+      { id:'armenia',      name:'Armenia',             col:10, row:1, owner:'neutral', income:1, defense:3, army:3 },
+      { id:'syria',        name:'Syria',               col:10, row:3, owner:'persia',  income:3, defense:2, army:4 },
+      { id:'judaea',       name:'Judaea',              col:10, row:4, owner:'persia',  income:2, defense:2, army:3 },
+      { id:'mesopotamia',  name:'Mesopotamia',         col:11, row:2, owner:'neutral', income:2, defense:2, army:2 },
+      { id:'arabia',       name:'Arabia',              col:11, row:4, owner:'neutral', income:1, defense:3, army:2 },
+      // Egypt
+      { id:'egypt_west',   name:'Libya Interior',      col:6, row:6, owner:'egypt',   income:1, defense:1, army:2 },
+      { id:'egypt_delta',  name:'Nile Delta',          col:8, row:5, owner:'egypt',   income:3, defense:2, army:4 },
+      { id:'egypt_upper',  name:'Upper Egypt',         col:9, row:5, owner:'egypt',   income:2, defense:2, army:3 },
+      { id:'sinai',        name:'Sinai',               col:9, row:4, owner:'neutral', income:1, defense:2, army:1 },
+      // Cyprus
+      { id:'cyprus',        name:'Cyprus',             col:8, row:4.5, owner:'neutral', income:1, defense:1, army:1 },
+    ]
+  },
+
+  napoleonic: {
+    name: 'Napoleonic Wars — 1805',
+    factions: {
+      france:  { name: 'France',         color: '#2c3e99', desc: "Napoleon's Grande Armee dominates the continent.",             treasury: 40, startArmy: 6, startProv: 4 },
+      britain: { name: 'Britain',        color: '#c0392b', desc: 'Mistress of the seas, funding coalitions against France.',     treasury: 45, startArmy: 4, startProv: 3 },
+      austria: { name: 'Austria',        color: '#bfbfbf', desc: 'The Habsburg Empire, battered but not yet broken.',           treasury: 30, startArmy: 5, startProv: 4 },
+      prussia: { name: 'Prussia',        color: '#2c3e50', desc: 'A rising military power in northern Germany.',                treasury: 25, startArmy: 5, startProv: 3 },
+      russia:  { name: 'Russia',         color: '#1a5c2a', desc: 'The vast empire of the Tsar, slow to mobilize but immense.', treasury: 35, startArmy: 5, startProv: 4 },
+      spain:   { name: 'Spain',          color: '#d4a017', desc: 'A fading colonial power clinging to Iberian dominance.',     treasury: 20, startArmy: 3, startProv: 3 },
+      ottoman: { name: 'Ottoman Empire', color: '#b03a2e', desc: 'The Sick Man of Europe still controls vast eastern lands.',  treasury: 25, startArmy: 4, startProv: 4 },
+      sweden:  { name: 'Sweden',         color: '#3498db', desc: 'A northern kingdom with proud military traditions.',          treasury: 15, startArmy: 3, startProv: 2 },
+    },
+    provinces: [
+      // Iberia
+      { id:'portugal',    name:'Portugal',        col:0, row:4, owner:'neutral', income:2, defense:2, army:2 },
+      { id:'castile',     name:'Castile',         col:1, row:3, owner:'spain',   income:2, defense:2, army:3 },
+      { id:'andalusia',   name:'Andalusia',       col:1, row:4, owner:'spain',   income:2, defense:2, army:3 },
+      { id:'catalonia',   name:'Catalonia',       col:2, row:4, owner:'spain',   income:2, defense:1, army:3 },
+      // France
+      { id:'normandy',    name:'Normandy',        col:2, row:2, owner:'france',  income:2, defense:2, army:4 },
+      { id:'paris',       name:'Paris',           col:3, row:2, owner:'france',  income:3, defense:3, army:6 },
+      { id:'aquitaine',   name:'Aquitaine',       col:2, row:3, owner:'france',  income:2, defense:1, army:4 },
+      { id:'lyon',        name:'Lyon',            col:3, row:3, owner:'france',  income:2, defense:2, army:5 },
+      // Britain
+      { id:'england',     name:'England',         col:2, row:0, owner:'britain', income:3, defense:3, army:5 },
+      { id:'scotland',    name:'Scotland',        col:1, row:0, owner:'britain', income:1, defense:3, army:3 },
+      { id:'ireland',     name:'Ireland',         col:0, row:0, owner:'britain', income:1, defense:2, army:2 },
+      // Low Countries & Rhineland
+      { id:'netherlands', name:'Netherlands',      col:3, row:1, owner:'neutral', income:3, defense:1, army:2 },
+      { id:'belgium',     name:'Belgium',          col:4, row:1, owner:'neutral', income:2, defense:1, army:2 },
+      { id:'rhineland',   name:'Rhineland',        col:4, row:2, owner:'neutral', income:2, defense:2, army:2 },
+      // Germany
+      { id:'hanover',     name:'Hanover',          col:4, row:0, owner:'neutral', income:2, defense:2, army:2 },
+      { id:'saxony',      name:'Saxony',           col:5, row:1, owner:'neutral', income:2, defense:2, army:2 },
+      { id:'bavaria',     name:'Bavaria',          col:5, row:2, owner:'neutral', income:2, defense:2, army:3 },
+      // Switzerland
+      { id:'switzerland', name:'Switzerland',      col:4, row:3, owner:'neutral', income:1, defense:4, army:2 },
+      // Prussia
+      { id:'brandenburg', name:'Brandenburg',      col:6, row:0, owner:'prussia', income:2, defense:3, army:5 },
+      { id:'silesia',     name:'Silesia',          col:6, row:1, owner:'prussia', income:2, defense:2, army:4 },
+      { id:'east_prussia',name:'East Prussia',     col:7, row:0, owner:'prussia', income:1, defense:3, army:4 },
+      // Austria
+      { id:'austria_p',   name:'Austria',          col:5, row:3, owner:'austria', income:3, defense:3, army:5 },
+      { id:'bohemia',     name:'Bohemia',          col:6, row:2, owner:'austria', income:2, defense:2, army:4 },
+      { id:'hungary',     name:'Hungary',          col:7, row:3, owner:'austria', income:2, defense:2, army:4 },
+      { id:'tyrol',       name:'Tyrol',            col:5, row:4, owner:'austria', income:1, defense:3, army:3 },
+      // Italy
+      { id:'piedmont',    name:'Piedmont',         col:3, row:4, owner:'neutral', income:2, defense:2, army:2 },
+      { id:'lombardy',    name:'Lombardy',         col:4, row:4, owner:'neutral', income:2, defense:2, army:2 },
+      { id:'papal_states',name:'Papal States',     col:5, row:5, owner:'neutral', income:2, defense:1, army:2 },
+      { id:'naples',      name:'Naples',           col:5, row:6, owner:'neutral', income:2, defense:1, army:2 },
+      { id:'sicily',      name:'Sicily',           col:5, row:7, owner:'neutral', income:1, defense:1, army:1 },
+      // Scandinavia
+      { id:'denmark',     name:'Denmark',          col:5, row:0, owner:'neutral', income:1, defense:2, army:2 },
+      { id:'sweden_s',    name:'Sweden',           col:6, row:-1, owner:'sweden', income:2, defense:2, army:3 },
+      { id:'norway',      name:'Norway',           col:4, row:-1, owner:'sweden', income:1, defense:3, army:2 },
+      // Poland / Russia
+      { id:'poland',      name:'Poland',           col:7, row:1, owner:'neutral', income:2, defense:1, army:2 },
+      { id:'lithuania',   name:'Lithuania',        col:8, row:0, owner:'russia',  income:1, defense:2, army:3 },
+      { id:'moscow',      name:'Moscow',           col:9, row:0, owner:'russia',  income:3, defense:3, army:5 },
+      { id:'ukraine',     name:'Ukraine',          col:8, row:2, owner:'russia',  income:2, defense:1, army:3 },
+      { id:'finland',     name:'Finland',          col:8, row:-1, owner:'russia', income:1, defense:3, army:3 },
+      // Balkans
+      { id:'croatia',     name:'Croatia',          col:6, row:3, owner:'neutral', income:1, defense:2, army:2 },
+      { id:'serbia',      name:'Serbia',           col:7, row:4, owner:'neutral', income:1, defense:2, army:2 },
+      { id:'wallachia',   name:'Wallachia',        col:8, row:3, owner:'neutral', income:1, defense:1, army:2 },
+      { id:'greece_nap',  name:'Greece',           col:7, row:5, owner:'ottoman', income:1, defense:2, army:3 },
+      // Ottoman
+      { id:'thrace_nap',  name:'Thrace',           col:8, row:4, owner:'ottoman', income:2, defense:2, army:4 },
+      { id:'anatolia',    name:'Anatolia',         col:9, row:3, owner:'ottoman', income:2, defense:2, army:4 },
+      { id:'levant',      name:'Levant',           col:10, row:4, owner:'ottoman', income:2, defense:2, army:3 },
+      // N. Africa & Egypt
+      { id:'morocco',     name:'Morocco',          col:0, row:5, owner:'neutral', income:1, defense:2, army:2 },
+      { id:'algeria',     name:'Algeria',          col:2, row:5, owner:'neutral', income:1, defense:2, army:2 },
+      { id:'tunis',       name:'Tunis',            col:3, row:5, owner:'neutral', income:1, defense:1, army:1 },
+      { id:'egypt_nap',   name:'Egypt',            col:9, row:5, owner:'neutral', income:2, defense:1, army:2 },
+      { id:'sardinia_nap',name:'Sardinia',         col:4, row:5, owner:'neutral', income:1, defense:1, army:1 },
+    ]
+  }
+};
+
+// ── ADJACENCY (auto-generated from hex distance) ────────────────
+
+function buildAdjacency(provinces) {
+  const adj = {};
+  const MAX_DIST = 1.65;
+  for (const p of provinces) adj[p.id] = [];
+  for (let i = 0; i < provinces.length; i++) {
+    for (let j = i + 1; j < provinces.length; j++) {
+      const a = provinces[i], b = provinces[j];
+      const dx = a.col - b.col;
+      const dy = a.row - b.row;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      if (dist <= MAX_DIST) {
+        adj[a.id].push(b.id);
+        adj[b.id].push(a.id);
+      }
+    }
+  }
+  return adj;
+}
+
+// ── GAME STATE ──────────────────────────────────────────────────
+
+let G = {
+  era: null,
+  playerFaction: null,
+  turn: 1,
+  actionsLeft: 3,
+  maxActions: 3,
+  treasury: 0,
+  provinces: [],
+  adjacency: {},
+  factions: {},
+  selectedProvince: null,
+  attackMode: false,
+  contested: {},
+  logEntries: [],
+  gameOver: false,
+};
+
+// ── SCREEN MANAGEMENT ───────────────────────────────────────────
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function selectEra(era) {
+  G.era = era;
+  const data = ERAS[era];
+  document.getElementById('faction-era-title').textContent = data.name;
+  const grid = document.getElementById('faction-grid');
+  grid.innerHTML = '';
+  for (const [key, f] of Object.entries(data.factions)) {
+    const card = document.createElement('div');
+    card.className = 'faction-card';
+    card.onclick = () => selectFaction(key);
+    card.innerHTML = `
+      <div class="faction-color" style="background:${f.color}"></div>
+      <h3>${f.name}</h3>
+      <div class="faction-desc">${f.desc}</div>
+      <div class="faction-stats">
+        <span>Treasury: ${f.treasury} gold</span>
+        <span>Army: ${f.startArmy} strength</span>
+        <span>Provinces: ${f.startProv}</span>
+      </div>`;
+    grid.appendChild(card);
+  }
+  showScreen('faction-screen');
+}
+
+function selectFaction(factionKey) {
+  G.playerFaction = factionKey;
+  initGame();
+  showScreen('game-screen');
+}
+
+// ── GAME INIT ───────────────────────────────────────────────────
+
+function initGame() {
+  const eraData = ERAS[G.era];
+  G.factions = {};
+  for (const [k, v] of Object.entries(eraData.factions)) {
+    G.factions[k] = { ...v, treasuryAI: v.treasury };
+  }
+  G.provinces = eraData.provinces.map(p => ({
+    ...p,
+    reinforced: false,
+  }));
+  G.adjacency = buildAdjacency(G.provinces);
+  G.turn = 1;
+  G.actionsLeft = G.maxActions;
+  G.treasury = G.factions[G.playerFaction].treasury;
+  G.contested = {};
+  G.logEntries = [];
+  G.gameOver = false;
+  G.selectedProvince = null;
+  G.attackMode = false;
+
+  document.getElementById('log').innerHTML = '';
+  addLog(`You rule as ${G.factions[G.playerFaction].name}. Seize 60% of the map to win.`, 'income');
+
+  renderMap();
+  updateUI();
+  updateSidebar(null);
+}
+
+// ── MAP RENDERING ───────────────────────────────────────────────
+
+const HEX_SIZE = 72;
+const HEX_H_SPACING = HEX_SIZE * 0.86;
+const HEX_V_SPACING = HEX_SIZE * 0.76;
+
+function renderMap() {
+  const canvas = document.getElementById('map-canvas');
+  canvas.innerHTML = '';
+
+  let minC = Infinity, maxC = -Infinity, minR = Infinity, maxR = -Infinity;
+  for (const p of G.provinces) {
+    minC = Math.min(minC, p.col); maxC = Math.max(maxC, p.col);
+    minR = Math.min(minR, p.row); maxR = Math.max(maxR, p.row);
+  }
+
+  const mapW = (maxC - minC + 2) * HEX_H_SPACING + HEX_SIZE;
+  const mapH = (maxR - minR + 2) * HEX_V_SPACING + HEX_SIZE;
+  canvas.style.width = mapW + 'px';
+  canvas.style.height = mapH + 'px';
+
+  for (const p of G.provinces) {
+    const el = document.createElement('div');
+    el.className = 'province';
+    el.id = 'prov-' + p.id;
+    el.dataset.id = p.id;
+
+    const x = (p.col - minC) * HEX_H_SPACING + HEX_SIZE * 0.4;
+    const rowOffset = (Math.round(p.col) % 2 === 1) ? HEX_V_SPACING * 0.5 : 0;
+    const y = (p.row - minR) * HEX_V_SPACING + rowOffset + HEX_SIZE * 0.4;
+
+    el.style.left = x + 'px';
+    el.style.top = y + 'px';
+    el.style.width = HEX_SIZE + 'px';
+    el.style.height = HEX_SIZE + 'px';
+
+    setProvinceColor(el, p);
+
+    el.innerHTML = `
+      <span class="prov-name">${p.name}</span>
+      <span class="reinforced-icon"></span>
+      <span class="army-badge">${p.army}</span>`;
+
+    el.addEventListener('click', () => onProvinceClick(p.id));
+    el.addEventListener('mouseenter', (e) => showTooltip(e, p));
+    el.addEventListener('mousemove', (e) => moveTooltip(e));
+    el.addEventListener('mouseleave', hideTooltip);
+
+    canvas.appendChild(el);
+  }
+}
+
+function setProvinceColor(el, p) {
+  el.style.background = p.owner === 'neutral' ? '#a89070'
+    : (G.factions[p.owner] ? G.factions[p.owner].color : '#a89070');
+}
+
+function refreshMap() {
+  for (const p of G.provinces) {
+    const el = document.getElementById('prov-' + p.id);
+    if (!el) continue;
+    setProvinceColor(el, p);
+    el.querySelector('.army-badge').textContent = p.army;
+    el.querySelector('.reinforced-icon').textContent = p.reinforced ? '\u{1F6E1}' : '';
+    el.classList.remove('selected', 'highlight-attack', 'highlight-friendly');
+    if (G.selectedProvince === p.id) el.classList.add('selected');
+  }
+
+  if (G.attackMode && G.selectedProvince) {
+    const adj = G.adjacency[G.selectedProvince] || [];
+    for (const nid of adj) {
+      const np = getProvince(nid);
+      if (np && np.owner !== G.playerFaction) {
+        const el = document.getElementById('prov-' + nid);
+        if (el) el.classList.add('highlight-attack');
+      }
+    }
+  }
+}
+
+// ── TOOLTIP ─────────────────────────────────────────────────────
+
+function showTooltip(e, p) {
+  const tip = document.getElementById('tooltip');
+  const ownerName = p.owner === 'neutral' ? 'Neutral'
+    : (G.factions[p.owner] ? G.factions[p.owner].name : p.owner);
+  const contested = G.contested[p.id] ? '<br><b style="color:#e74c3c;">CONTESTED</b>' : '';
+  tip.innerHTML = `<b>${p.name}</b><br>Owner: ${ownerName}<br>Army: ${p.army} | Def: ${p.defense}<br>Income: ${p.income} gold${contested}`;
+  tip.classList.add('visible');
+  moveTooltip(e);
+}
+function moveTooltip(e) {
+  const tip = document.getElementById('tooltip');
+  tip.style.left = (e.clientX + 14) + 'px';
+  tip.style.top = (e.clientY + 14) + 'px';
+}
+function hideTooltip() {
+  document.getElementById('tooltip').classList.remove('visible');
+}
+
+// ── PROVINCE HELPERS ────────────────────────────────────────────
+
+function getProvince(id) { return G.provinces.find(p => p.id === id); }
+
+function calcIncome(faction) {
+  return G.provinces.filter(p => p.owner === faction).reduce((s, p) => s + p.income, 0);
+}
+
+function countProvinces(faction) {
+  return G.provinces.filter(p => p.owner === faction).length;
+}
+
+// ── PROVINCE CLICK ──────────────────────────────────────────────
+
+function onProvinceClick(id) {
+  if (G.gameOver) return;
+  const p = getProvince(id);
+  if (!p) return;
+
+  // Attack mode — clicking a valid enemy target
+  if (G.attackMode && G.selectedProvince) {
+    const adj = G.adjacency[G.selectedProvince] || [];
+    if (adj.includes(id) && p.owner !== G.playerFaction) {
+      executeAttack(G.selectedProvince, id);
+      return;
+    }
+    // Clicked invalid target — cancel
+    G.attackMode = false;
+    G.selectedProvince = null;
+    refreshMap();
+    updateSidebar(null);
+    return;
+  }
+
+  // Normal selection
+  G.attackMode = false;
+  G.selectedProvince = id;
+  refreshMap();
+  updateSidebar(p);
+}
+
+// ── SIDEBAR ─────────────────────────────────────────────────────
+
+function updateSidebar(p) {
+  const info = document.getElementById('province-info');
+  const actions = document.getElementById('province-actions');
+
+  if (!p) {
+    info.innerHTML = '<p style="color:#8a7a60;font-size:13px;">Click a province to see details.</p>';
+    actions.innerHTML = '';
+    return;
+  }
+
+  const ownerName = p.owner === 'neutral' ? 'Neutral'
+    : (G.factions[p.owner] ? G.factions[p.owner].name : p.owner);
+  const contested = G.contested[p.id] ? '<div class="detail-row"><span>Status</span><span class="val" style="color:#c0392b;">CONTESTED</span></div>' : '';
+
+  info.innerHTML = `
+    <div class="detail-row"><span>Name</span><span class="val">${p.name}</span></div>
+    <div class="detail-row"><span>Owner</span><span class="val">${ownerName}</span></div>
+    <div class="detail-row"><span>Army</span><span class="val">${p.army}</span></div>
+    <div class="detail-row"><span>Defense</span><span class="val">${p.defense}</span></div>
+    <div class="detail-row"><span>Income</span><span class="val">${p.income} gold/turn</span></div>
+    <div class="detail-row"><span>Reinforced</span><span class="val">${p.reinforced ? 'Yes' : 'No'}</span></div>
+    ${contested}`;
+
+  actions.innerHTML = '';
+  if (p.owner !== G.playerFaction || G.actionsLeft <= 0) return;
+
+  // Attack button — if adjacent enemies exist
+  const adj = G.adjacency[p.id] || [];
+  const hasEnemyAdj = adj.some(nid => { const np = getProvince(nid); return np && np.owner !== G.playerFaction; });
+  if (hasEnemyAdj && p.army >= 1) {
+    const cost = 5;
+    const btn = makeBtn(`Attack from here (${cost}g)`, G.treasury < cost, () => {
+      G.attackMode = true;
+      G.selectedProvince = p.id;
+      addLog('Select an adjacent enemy province to attack.', '');
+      refreshMap();
+    });
+    actions.appendChild(btn);
+  }
+
+  // Reinforce
+  const rCost = 8;
+  actions.appendChild(makeBtn(`Reinforce +1 Army (${rCost}g)`, G.treasury < rCost || p.army >= 10, () => {
+    G.treasury -= rCost;
+    p.army = Math.min(p.army + 1, 10);
+    p.reinforced = true;
+    G.actionsLeft--;
+    addLog(`Reinforced ${p.name} — army now ${p.army}.`, 'income');
+    refreshMap(); updateUI(); updateSidebar(p);
+  }));
+
+  // Build economy
+  const bCost = 12;
+  actions.appendChild(makeBtn(`Build Economy +1 Income (${bCost}g)`, G.treasury < bCost || p.income >= 5, () => {
+    G.treasury -= bCost;
+    p.income++;
+    G.actionsLeft--;
+    addLog(`Built economy in ${p.name} — income now ${p.income}.`, 'income');
+    refreshMap(); updateUI(); updateSidebar(p);
+  }));
+}
+
+function makeBtn(text, disabled, onclick) {
+  const btn = document.createElement('button');
+  btn.className = 'action-btn';
+  btn.textContent = text;
+  btn.disabled = disabled;
+  btn.onclick = onclick;
+  return btn;
+}
+
+// ── COMBAT ──────────────────────────────────────────────────────
+
+function executeAttack(fromId, toId) {
+  const attacker = getProvince(fromId);
+  const defender = getProvince(toId);
+  if (!attacker || !defender) return;
+
+  const cost = 5;
+  if (G.treasury < cost || G.actionsLeft <= 0) return;
+  G.treasury -= cost;
+  G.actionsLeft--;
+  G.attackMode = false;
+
+  // Save pre-combat army values for display
+  const atkArmyPre = attacker.army;
+  const defArmyPre = defender.army;
+
+  const atkDice = randInt(1, 3);
+  const defDice = randInt(1, 3);
+  const contestedMod = G.contested[toId] ? -1 : 0;
+
+  const atkTotal = atkArmyPre + atkDice;
+  const defTotal = defArmyPre + defender.defense + defDice + contestedMod;
+
+  const attackerName = G.factions[attacker.owner] ? G.factions[attacker.owner].name : attacker.owner;
+  const defenderName = defender.owner === 'neutral' ? 'Neutral'
+    : (G.factions[defender.owner] ? G.factions[defender.owner].name : defender.owner);
+
+  let won = atkTotal > defTotal;
+
+  const detail = `<b>${attackerName}</b> attacks <b>${defender.name}</b> from ${attacker.name}<br><br>` +
+    `Attacker: ${atkArmyPre} army + ${atkDice} dice = <b>${atkTotal}</b><br>` +
+    `Defender: ${defArmyPre} army + ${defender.defense} def + ${defDice} dice${contestedMod ? ' - 1 contested' : ''} = <b>${defTotal}</b>`;
+
+  if (won) {
+    const oldOwner = defender.owner;
+    defender.owner = attacker.owner;
+    attacker.army = Math.max(1, attacker.army - 1);
+    defender.army = Math.max(1, Math.ceil(attacker.army * 0.5));
+    defender.reinforced = false;
+    delete G.contested[toId];
+    addLog(`${attackerName} conquered ${defender.name}!`, 'combat');
+
+    if (oldOwner !== 'neutral') {
+      if (countProvinces(oldOwner) === 0) {
+        addLog(`${defenderName} has been eliminated!`, 'combat');
+      }
+    }
+  } else {
+    attacker.army = Math.max(1, attacker.army - 1);
+    G.contested[toId] = true;
+    addLog(`Attack on ${defender.name} failed — now contested.`, 'combat');
+  }
+
+  showCombatPopup(`Battle for ${defender.name}`, detail, won ? 'VICTORY' : 'DEFEATED', won);
+
+  G.selectedProvince = null;
+  refreshMap(); updateUI(); updateSidebar(null);
+  checkWinLose();
+}
+
+function showCombatPopup(title, detail, resultText, isWin) {
+  document.getElementById('combat-title').textContent = title;
+  document.getElementById('combat-detail').innerHTML = detail;
+  const r = document.getElementById('combat-result');
+  r.textContent = resultText;
+  r.className = 'combat-result ' + (isWin ? 'win' : 'lose');
+  document.getElementById('combat-overlay').classList.add('active');
+}
+
+function closeCombat() {
+  document.getElementById('combat-overlay').classList.remove('active');
+}
+
+// ── END TURN & AI ───────────────────────────────────────────────
+
+function endTurn() {
+  if (G.gameOver) return;
+
+  // Collect player income
+  const inc = calcIncome(G.playerFaction);
+  G.treasury += inc;
+  addLog(`Turn ${G.turn} ends. Collected ${inc} gold. Treasury: ${G.treasury}.`, 'income');
+
+  // AI turns
+  runAITurns();
+
+  G.turn++;
+  G.actionsLeft = G.maxActions;
+  G.selectedProvince = null;
+  G.attackMode = false;
+
+  addLog(`— Turn ${G.turn} begins —`, '');
+
+  refreshMap(); updateUI(); updateSidebar(null);
+  checkWinLose();
+}
+
+function runAITurns() {
+  const factionKeys = Object.keys(G.factions).filter(k => k !== G.playerFaction);
+
+  for (const fk of factionKeys) {
+    const myProvs = () => G.provinces.filter(p => p.owner === fk);
+    if (myProvs().length === 0) continue;
+
+    // Collect income
+    const inc = calcIncome(fk);
+    G.factions[fk].treasuryAI += inc;
+    const fname = G.factions[fk].name;
+
+    let aiActions = 3;
+
+    while (aiActions > 0) {
+      const currentProvs = myProvs();
+      if (currentProvs.length === 0) break;
+
+      // Find best attack
+      let bestAtk = null, bestScore = -999;
+      for (const mp of currentProvs) {
+        if (mp.army < 2) continue;
+        const adj = G.adjacency[mp.id] || [];
+        for (const nid of adj) {
+          const np = getProvince(nid);
+          if (!np || np.owner === fk) continue;
+          let score = (mp.army - np.army) + np.income * 2;
+          if (G.contested[nid]) score += 3;
+          if (np.owner === 'neutral') score += 1;
+          if (np.army <= 2) score += 2;
+          if (score > bestScore) { bestScore = score; bestAtk = { from: mp, to: np }; }
+        }
+      }
+
+      if (bestAtk && bestScore > 0 && G.factions[fk].treasuryAI >= 5) {
+        // AI attack
+        G.factions[fk].treasuryAI -= 5;
+        const a = bestAtk.from, d = bestAtk.to;
+        const atkTotal = a.army + randInt(1, 3);
+        const cMod = G.contested[d.id] ? -1 : 0;
+        const defTotal = d.army + d.defense + randInt(1, 3) + cMod;
+
+        const defFName = d.owner === 'neutral' ? 'Neutral'
+          : (G.factions[d.owner] ? G.factions[d.owner].name : d.owner);
+
+        if (atkTotal > defTotal) {
+          const oldOwner = d.owner;
+          d.owner = fk;
+          a.army = Math.max(1, a.army - 1);
+          d.army = Math.max(1, Math.ceil(a.army * 0.5));
+          d.reinforced = false;
+          delete G.contested[d.id];
+          addLog(`${fname} conquered ${d.name} from ${defFName}.`, 'ai');
+
+          if (oldOwner !== 'neutral' && countProvinces(oldOwner) === 0) {
+            const elimName = G.factions[oldOwner] ? G.factions[oldOwner].name : oldOwner;
+            addLog(`${elimName} has been eliminated!`, 'combat');
+          }
+        } else {
+          a.army = Math.max(1, a.army - 1);
+          G.contested[d.id] = true;
+          addLog(`${fname} failed to take ${d.name}.`, 'ai');
+        }
+        aiActions--;
+      } else if (G.factions[fk].treasuryAI >= 8) {
+        // Reinforce weakest border province
+        const border = currentProvs.filter(mp => {
+          const adj = G.adjacency[mp.id] || [];
+          return adj.some(nid => { const np = getProvince(nid); return np && np.owner !== fk; });
+        });
+        if (border.length > 0) {
+          border.sort((a, b) => a.army - b.army);
+          const t = border[0];
+          if (t.army < 8) {
+            G.factions[fk].treasuryAI -= 8;
+            t.army = Math.min(10, t.army + 1);
+            t.reinforced = true;
+            aiActions--;
+            continue;
+          }
+        }
+        break;
+      } else {
+        break;
+      }
+    }
+  }
+}
+
+// ── WIN / LOSE ──────────────────────────────────────────────────
+
+function checkWinLose() {
+  const total = G.provinces.length;
+  const mine = countProvinces(G.playerFaction);
+
+  if (mine === 0) {
+    G.gameOver = true;
+    showGameOver(false, mine, total);
+  } else if (mine >= Math.ceil(total * 0.6)) {
+    G.gameOver = true;
+    showGameOver(true, mine, total);
+  }
+}
+
+function showGameOver(win, mine, total) {
+  const fname = G.factions[G.playerFaction].name;
+  document.getElementById('go-title').textContent = win ? 'VICTORY' : 'DEFEAT';
+  document.getElementById('go-title').style.color = win ? '#27ae60' : '#c0392b';
+  document.getElementById('go-subtitle').textContent = win
+    ? `${fname} dominates the known world!`
+    : `${fname} has been wiped from the map.`;
+  document.getElementById('go-summary').innerHTML =
+    `Turns played: ${G.turn}<br>Provinces held: ${mine} / ${total}<br>Final treasury: ${G.treasury} gold`;
+  showScreen('gameover-screen');
+}
+
+// ── UI UPDATE ───────────────────────────────────────────────────
+
+function updateUI() {
+  document.getElementById('turn-num').textContent = G.turn;
+  document.getElementById('player-name').textContent = G.factions[G.playerFaction].name;
+  document.getElementById('treasury').textContent = G.treasury;
+  document.getElementById('income').textContent = calcIncome(G.playerFaction);
+  document.getElementById('actions').textContent = G.actionsLeft;
+  document.getElementById('prov-count').textContent = countProvinces(G.playerFaction);
+  document.getElementById('end-turn-btn').disabled = G.gameOver;
+}
+
+// ── LOG ─────────────────────────────────────────────────────────
+
+function addLog(msg, type) {
+  G.logEntries.push({ msg, type });
+  if (G.logEntries.length > 80) G.logEntries.shift();
+  const log = document.getElementById('log');
+  const entry = document.createElement('div');
+  entry.className = 'log-entry' + (type ? ' ' + type : '');
+  entry.textContent = `[T${G.turn}] ${msg}`;
+  log.appendChild(entry);
+  log.scrollTop = log.scrollHeight;
+}
+
+// ── UTILS ───────────────────────────────────────────────────────
+
+function randInt(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+</script>
+</body>
+</html>
