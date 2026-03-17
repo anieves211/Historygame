@@ -143,76 +143,98 @@ const mp = (id,name,owner,income,defense,army,buildings,verts) => ({id,name,owne
 function buildAntiquity(){
   // === SHARED VERTICES ===
   // British Isles
-  const B1=[24,5],B2=[34,2],B3=[42,4],B4=[46,10],B5=[43,14],B6=[29,13],B7=[22,8]; // Scotland coast
-  const B8=[46,17],B9=[51,24],B10=[49,31],B11=[43,35],B12=[35,37],B13=[30,34],B14=[26,27],B15=[23,19],B16=[25,15]; // England
-  // Iberian Peninsula — shared edges form coastline + internal borders
+  const B1=[24,5],B2=[34,2],B3=[42,4],B4=[46,10],B5=[43,14],B6=[29,13],B7=[22,8];
+  const B8=[46,17],B9=[51,24],B10=[49,31],B11=[43,35],B12=[35,37],B13=[30,34],B14=[26,27],B15=[23,19],B16=[25,15];
+  // Ireland
+  const HI1=[8,10],HI2=[16,7],HI3=[22,10],HI4=[22,18],HI5=[18,24],HI6=[10,24],HI7=[4,18];
+  // Iberian Peninsula — 4 provinces now
   const I1=[4,58],I2=[8,50],I3=[16,47],I4=[26,46],I5=[34,47],I6=[38,50],I7=[42,54],I8=[40,62],I9=[38,70],I10=[32,77],I11=[22,80],I12=[12,78],I13=[6,72],I14=[4,65];
-  const IJ=[24,62],IB=[14,70]; // internal junctions
+  const IJ=[24,62],IB=[14,70],IGJ=[14,56]; // added Gallaecia junction
   // Gaul — connects to Iberia at Pyrenees, to Germania at Rhine
-  const G1=[26,38],G2=[34,34],G3=[44,31],G4=[54,28],G5=[30,44],G6=[34,49],G7=[42,54]; // G7=I7 Pyrenees E
-  const GR1=[62,24],GR2=[66,32],GR3=[66,40],GR4=[62,46]; // Rhine (shared w/ Germania)
-  const GA=[58,50],GM=[50,54]; // Alps/Med
-  const GJ1=[44,38],GJ2=[54,36],GJ3=[38,46],GJ4=[50,46]; // internal
-  // Germania
-  const GE1=[72,18],GE2=[84,16],GE3=[92,20],GE4=[90,28],GE5=[82,32],GE6=[74,30]; // outer
-  const GEJ=[78,26]; // internal
-  // Raetia & Cisalpina (Alps, N Italy)
-  const R1=[68,36],R2=[74,38],R3=[72,44],R4=[66,46]; // Raetia uses GR3,GR4,R1..R4
-  const CI1=[60,52],CI2=[68,48],CI3=[76,48],CI4=[78,54],CI5=[72,58],CI6=[64,56]; // Cisalpina
-  // Italia peninsula
-  const IT1=[78,54],IT2=[84,56],IT3=[88,62],IT4=[86,68],IT5=[82,74],IT6=[78,70],IT7=[74,64],IT8=[68,58]; // IT1=CI4
-  const MG1=[82,74],MG2=[88,72],MG3=[92,76],MG4=[90,82],MG5=[84,80]; // Magna Graecia
-  // Sicilia (island)
+  const G1=[26,38],G2=[34,34],G3=[44,31],G4=[54,28],G5=[30,44],G6=[34,49],G7=[42,54];
+  const GR1=[62,24],GR2=[66,32],GR3=[66,40],GR4=[62,46];
+  const GA=[58,50],GM=[50,54];
+  const GJ1=[44,38],GJ2=[54,36],GJ3=[38,46],GJ4=[50,46];
+  // Germania — 3 provinces
+  const GE1=[72,18],GE2=[84,16],GE3=[92,20],GE4=[90,28],GE5=[82,32],GE6=[74,30];
+  const GEJ=[78,26],GE7=[86,22]; // split into 3
+  // Raetia, Noricum, Cisalpina, Venetia
+  const R1=[68,36],R2=[74,38],R3=[72,44],R4=[66,46];
+  const NO1=[74,30],NO2=[82,32],NO3=[86,38],NO4=[82,42],NO5=[76,40]; // Noricum
+  const CI1=[60,52],CI2=[68,48],CI3=[72,48],CIJ=[72,54],CI5=[66,56]; // Cisalpina (smaller)
+  const VE1=[72,48],VE2=[78,46],VE3=[80,50],VE4=[78,54],VEJ=[72,54]; // Venetia
+  // Italia peninsula — split into Etruria + Italia proper
+  const ET1=[72,54],ET2=[78,54],ET3=[82,58],ET4=[80,64],ET5=[74,64],ET6=[68,58]; // Etruria
+  const IT1=[80,64],IT2=[86,62],IT3=[88,68],IT4=[84,74],IT5=[78,70]; // Italia (smaller)
+  const MG1=[84,74],MG2=[90,72],MG3=[94,76],MG4=[92,82],MG5=[86,80]; // Magna Graecia
+  const AP1=[82,58],AP2=[88,56],AP3=[92,60],AP4=[88,66],AP5=[84,64]; // Apulia (new)
+  // Sicilia
   const SI1=[82,84],SI2=[90,83],SI3=[94,86],SI4=[92,92],SI5=[84,92],SI6=[80,88];
-  // Corsica & Sardinia (islands)
+  // Corsica & Sardinia
   const CO1=[56,58],CO2=[60,56],CO3=[62,60],CO4=[60,66],CO5=[56,64];
   const SA1=[50,68],SA2=[56,66],SA3=[58,72],SA4=[56,80],SA5=[50,78],SA6=[48,72];
-  // Illyria & Dalmatia (Balkans W)
-  const IL1=[82,32],IL2=[90,28],IL3=[96,32],IL4=[98,40],IL5=[94,44],IL6=[86,42]; // Illyria
-  const DA1=[86,42],DA2=[94,44],DA3=[98,50],DA4=[96,56],DA5=[88,56],DA6=[82,50]; // Dalmatia
-  // Dacia, Moesia, Thrace
-  const DC1=[98,24],DC2=[110,20],DC3=[120,24],DC4=[118,32],DC5=[110,36],DC6=[102,34]; // Dacia
-  const MO1=[102,34],MO2=[110,36],MO3=[114,42],MO4=[108,48],MO5=[100,46],MO6=[96,40]; // Moesia
-  const TH1=[114,42],TH2=[122,38],TH3=[132,40],TH4=[134,48],TH5=[126,52],TH6=[118,50]; // Thrace
-  // Macedonia, Epirus, Thessaly, Achaea, Attica
-  const MA1=[100,50],MA2=[108,48],MA3=[116,50],MA4=[118,56],MA5=[112,60],MA6=[104,58]; // Macedonia
-  const EP1=[88,56],EP2=[96,56],EP3=[100,60],EP4=[98,66],EP5=[92,68],EP6=[86,64]; // Epirus
-  const TS1=[100,60],TS2=[108,60],TS3=[112,64],TS4=[108,70],TS5=[100,68]; // Thessaly
-  const AC1=[92,68],AC2=[100,68],AC3=[106,72],AC4=[104,80],AC5=[96,80],AC6=[90,76]; // Achaea
-  const AT1=[108,64],AT2=[116,62],AT3=[122,66],AT4=[120,74],AT5=[112,76],AT6=[106,72]; // Attica
-  // Crete (island)
+  // Pannonia (between Noricum and Balkans)
+  const PA1=[86,38],PA2=[94,36],PA3=[98,42],PA4=[96,48],PA5=[90,48],PA6=[86,44]; // Pannonia
+  // Illyria & Dalmatia
+  const IL1=[82,32],IL2=[90,28],IL3=[96,32],IL4=[98,40],IL5=[94,36],IL6=[86,38]; // Illyria (adjusted)
+  const DA1=[90,48],DA2=[96,48],DA3=[98,54],DA4=[96,58],DA5=[88,58],DA6=[84,52]; // Dalmatia
+  // Dacia — split into Dacia + Sarmatia
+  const DC1=[98,24],DC2=[110,20],DC3=[120,24],DC4=[118,32],DC5=[110,36],DC6=[102,34];
+  const SAR1=[120,14],SAR2=[132,10],SAR3=[142,14],SAR4=[140,22],SAR5=[132,26],SAR6=[122,22]; // Sarmatia
+  // Moesia, Thrace
+  const MO1=[102,34],MO2=[110,36],MO3=[114,42],MO4=[108,48],MO5=[100,46],MO6=[96,40];
+  const TH1=[114,42],TH2=[122,38],TH3=[132,40],TH4=[134,48],TH5=[126,52],TH6=[118,50];
+  // Macedonia, Epirus, Thessaly, Aetolia, Achaea, Attica
+  const MA1=[100,50],MA2=[108,48],MA3=[116,50],MA4=[118,56],MA5=[112,60],MA6=[104,58];
+  const EP1=[88,58],EP2=[96,58],EP3=[100,62],EP4=[98,66],EP5=[92,68],EP6=[86,66];
+  const TS1=[100,62],TS2=[108,60],TS3=[112,64],TS4=[108,68],TS5=[102,66]; // Thessaly
+  const AE1=[98,66],AE2=[106,68],AE3=[108,72],AE4=[104,76],AE5=[96,76],AE6=[92,72]; // Aetolia (new)
+  const AC1=[92,76],AC2=[100,76],AC3=[106,78],AC4=[104,84],AC5=[96,84],AC6=[90,80]; // Achaea
+  const AT1=[108,64],AT2=[116,62],AT3=[122,66],AT4=[120,74],AT5=[112,76],AT6=[106,72];
+  // Crete + Rhodes
   const CR1=[108,90],CR2=[118,88],CR3=[128,90],CR4=[126,95],CR5=[116,97],CR6=[108,94];
-  // Asia Minor
-  const BI1=[138,44],BI2=[148,40],BI3=[156,44],BI4=[154,52],BI5=[146,54],BI6=[138,50]; // Bithynia
-  const PO1=[156,32],PO2=[166,28],PO3=[174,32],PO4=[176,40],PO5=[170,46],PO6=[162,42]; // Pontus
-  const AM1=[140,54],AM2=[148,54],AM3=[156,58],AM4=[162,64],AM5=[156,70],AM6=[148,68],AM7=[140,62]; // Asia Minor W
-  const CA1=[162,42],CA2=[170,46],CA3=[178,48],CA4=[180,56],CA5=[174,62],CA6=[166,60],CA7=[158,56]; // Cappadocia
-  const LY1=[148,68],LY2=[156,70],LY3=[162,74],LY4=[158,80],LY5=[150,80],LY6=[144,74]; // Lycia
-  const CL1=[162,74],CL2=[170,70],CL3=[178,72],CL4=[182,78],CL5=[176,82],CL6=[168,80]; // Cilicia
-  // Armenia, Syria, Judaea, Mesopotamia, Arabia
-  const AR1=[180,34],AR2=[192,30],AR3=[200,36],AR4=[198,46],AR5=[190,48],AR6=[182,42]; // Armenia
-  const SY1=[176,82],SY2=[184,78],SY3=[192,76],SY4=[196,82],SY5=[192,90],SY6=[184,92]; // Syria
-  const JU1=[184,92],JU2=[192,90],JU3=[194,98],JU4=[188,104],JU5=[180,102],JU6=[176,96]; // Judaea
-  const ME1=[198,46],ME2=[208,42],ME3=[218,48],ME4=[216,58],ME5=[208,62],ME6=[200,58]; // Mesopotamia
-  const AB1=[194,98],AB2=[204,94],AB3=[214,100],AB4=[210,112],AB5=[198,114],AB6=[190,106]; // Arabia
-  // N. Africa — continuous coastal strip
+  const RH1=[128,78],RH2=[136,76],RH3=[138,80],RH4=[134,84],RH5=[128,82]; // Rhodes
+  // Asia Minor — add Galatia + Phrygia
+  const BI1=[138,44],BI2=[148,40],BI3=[156,44],BI4=[154,52],BI5=[146,54],BI6=[138,50];
+  const PO1=[156,32],PO2=[166,28],PO3=[174,32],PO4=[176,40],PO5=[170,46],PO6=[162,42];
+  const AM1=[140,54],AM2=[148,54],AM3=[154,58],AM4=[152,64],AM5=[146,68],AM6=[140,64]; // Asia Minor W (smaller)
+  const PH1=[154,58],PH2=[162,56],PH3=[166,62],PH4=[162,68],PH5=[154,66],PH6=[150,62]; // Phrygia (new)
+  const GL1=[156,46],GL2=[164,44],GL3=[170,48],GL4=[168,56],GL5=[162,56],GL6=[156,50]; // Galatia (new)
+  const CA1=[170,40],CA2=[178,42],CA3=[182,48],CA4=[180,56],CA5=[174,58],CA6=[168,52]; // Cappadocia (adjusted)
+  const LY1=[146,68],LY2=[154,70],LY3=[160,74],LY4=[158,80],LY5=[150,80],LY6=[144,74];
+  const CL1=[160,74],CL2=[168,70],CL3=[178,72],CL4=[182,78],CL5=[176,82],CL6=[168,80];
+  // Armenia, Commagene, Syria, Judaea, Mesopotamia split
+  const AR1=[180,34],AR2=[192,30],AR3=[200,36],AR4=[198,46],AR5=[190,48],AR6=[182,42];
+  const CM1=[178,64],CM2=[186,60],CM3=[192,64],CM4=[190,72],CM5=[184,74],CM6=[178,70]; // Commagene (new)
+  const SY1=[176,82],SY2=[184,78],SY3=[192,76],SY4=[196,82],SY5=[192,90],SY6=[184,92];
+  const JU1=[184,92],JU2=[192,90],JU3=[194,98],JU4=[188,104],JU5=[180,102],JU6=[176,96];
+  const AS1=[198,46],AS2=[208,42],AS3=[216,48],AS4=[214,56],AS5=[206,56],AS6=[200,52]; // Assyria
+  const BA1=[200,56],BA2=[208,56],BA3=[216,60],BA4=[214,70],BA5=[206,68],BA6=[200,64]; // Babylonia
+  const AB1=[194,98],AB2=[204,94],AB3=[214,100],AB4=[210,112],AB5=[198,114],AB6=[190,106];
+  // N. Africa — more provinces
   const NA1=[6,78],NA2=[16,76],NA3=[24,78],NA4=[34,76],NA5=[44,78],NA6=[54,76],NA7=[64,78],NA8=[74,76],NA9=[80,78],NA10=[86,80];
   const NA11=[92,82],NA12=[100,84],NA13=[108,86],NA14=[116,88],NA15=[124,86],NA16=[132,88],NA17=[140,86],NA18=[148,88],NA19=[156,86],NA20=[164,90];
-  // S coast of Africa (lower)
   const NS1=[8,86],NS2=[18,88],NS3=[28,86],NS4=[38,86],NS5=[48,86],NS6=[58,86],NS7=[68,86],NS8=[78,86];
   const NS9=[88,90],NS10=[98,92],NS11=[108,94],NS12=[118,96],NS13=[130,96],NS14=[140,94],NS15=[150,96],NS16=[160,98];
-  // Egypt
-  const EG1=[160,98],EG2=[170,96],EG3=[178,98],EG4=[176,106],EG5=[168,108],EG6=[160,106]; // Delta
-  const EU1=[168,108],EU2=[178,106],EU3=[184,112],EU4=[180,120],EU5=[170,118],EU6=[164,114]; // Upper
-  const SN1=[178,92],SN2=[186,88],SN3=[190,94],SN4=[186,102],SN5=[180,100],SN6=[176,96]; // Sinai
-  const CY1=[160,78],CY2=[170,76],CY3=[174,80],CY4=[168,84],CY5=[158,82]; // Cyprus
+  // Saharan fringe (south of Numidia/Tripolitania)
+  const SF1=[38,94],SF2=[58,94],SF3=[58,102],SF4=[38,102]; // Gaetuli
+  const SF5=[68,94],SF6=[88,94],SF7=[88,102],SF8=[68,102]; // Garamantes
+  const SF9=[108,100],SF10=[130,100],SF11=[130,108],SF12=[108,108]; // Phazania
+  // Egypt + Marmarica
+  const MM1=[148,92],MM2=[156,90],MM3=[162,94],MM4=[160,100],MM5=[152,100],MM6=[148,96]; // Marmarica (new)
+  const EG1=[160,100],EG2=[170,98],EG3=[178,100],EG4=[176,108],EG5=[168,110],EG6=[160,108];
+  const EU1=[168,110],EU2=[178,108],EU3=[184,114],EU4=[180,122],EU5=[170,120],EU6=[164,116];
+  const SN1=[178,92],SN2=[186,88],SN3=[190,94],SN4=[186,104],SN5=[180,102],SN6=[176,98];
+  const CY1=[160,78],CY2=[170,76],CY3=[174,80],CY4=[168,84],CY5=[158,82];
 
   return [
     // BRITISH ISLES
+    mp('hibernia','Hibernia','gaul',1,2,2,[],[HI1,HI2,HI3,HI4,HI5,HI6,HI7]),
     mp('caledonia','Caledonia','gaul',1,3,2,[],[B1,B2,B3,B4,B5,B6,B7]),
     mp('britannia','Britannia','gaul',2,2,3,[],[B6,B5,B8,B9,B10,B11,B12,B13,B14,B15,B16]),
-    // IBERIA
-    mp('hispania','Hispania','carthage',2,2,3,[],[I1,I2,I3,I4,IJ,IB,I14]),
+    // IBERIA (4 provinces)
+    mp('gallaecia','Gallaecia','carthage',1,2,2,[],[I1,I2,I3,IGJ,I14]),
+    mp('lusitania','Lusitania','carthage',2,2,3,[],[IGJ,I4,IJ,IB,I13,I14]),
     mp('tarraconensis','Tarraconensis','carthage',2,2,3,[],[I4,I5,I6,I7,I8,I9,IJ]),
     mp('baetica','Baetica','carthage',2,1,2,[],[IJ,I9,I10,I11,I12,IB]),
     // GAUL
@@ -221,54 +243,71 @@ function buildAntiquity(){
     mp('lugdunensis','Lugdunensis','gaul',2,2,4,[],[GJ1,GJ2,GR2,GR3,GR4,GJ4,GJ3]),
     mp('aquitania','Aquitania','gaul',2,1,3,[],[G5,GJ3,GJ4,GM,G7,G6]),
     mp('narbonensis','Narbonensis','gaul',2,1,3,[],[GJ4,GR4,GA,CI1,GM]),
-    // GERMANIA
-    mp('germania_w','Germania Inf.','gaul',1,3,2,[],[GR1,GE1,GEJ,GE6,GR2]),
-    mp('germania_e','Germania Sup.','gaul',1,3,2,[],[GE1,GE2,GE3,GE4,GE5,GEJ]),
+    // GERMANIA (3)
+    mp('germania_w','Germania Inf.','gaul',1,3,2,[],[GR1,GE1,GE7,GE6,GR2]),
+    mp('germania_e','Germania Sup.','gaul',1,3,2,[],[GE1,GE2,GE3,GE7]),
+    mp('marcomanni','Marcomanni','gaul',1,2,3,[],[GE7,GE3,GE4,GE5,GE6]),
+    // ALPS & N ITALY
     mp('raetia','Raetia','rome',1,3,2,[],[GR3,R1,R2,R3,R4,GR4]),
-    // N ITALY
-    mp('cisalpina','Cisalpina','rome',2,2,4,[],[CI1,CI2,CI3,CI4,CI5,CI6]),
-    mp('italia','Italia','rome',3,3,5,['barracks'],[CI4,IT2,IT3,IT4,IT5,IT7,CI5]),
+    mp('noricum','Noricum','rome',1,2,2,[],[NO1,NO2,NO3,NO4,NO5]),
+    mp('cisalpina','Cisalpina','rome',2,2,4,[],[CI1,CI2,CI3,CIJ,CI5]),
+    mp('venetia','Venetia','rome',2,2,3,[],[VE1,VE2,VE3,VE4,VEJ]),
+    mp('etruria','Etruria','rome',2,2,3,[],[ET1,ET2,ET3,ET4,ET5,ET6]),
+    mp('italia','Italia','rome',3,3,5,['barracks'],[IT1,IT2,IT3,IT4,IT5]),
+    mp('apulia','Apulia','rome',1,1,3,[],[AP1,AP2,AP3,AP4,AP5]),
     mp('magna_gr','Magna Graecia','rome',2,2,4,[],[MG1,MG2,MG3,MG4,MG5]),
     // ISLANDS
     mp('sicilia','Sicilia','rome',2,1,3,[],[SI1,SI2,SI3,SI4,SI5,SI6]),
     mp('corsica','Corsica','rome',1,1,1,[],[CO1,CO2,CO3,CO4,CO5]),
     mp('sardinia','Sardinia','carthage',1,1,2,[],[SA1,SA2,SA3,SA4,SA5,SA6]),
     // BALKANS
+    mp('pannonia','Pannonia','macedonia',1,2,2,[],[PA1,PA2,PA3,PA4,PA5,PA6]),
     mp('illyria','Illyria','macedonia',1,2,3,[],[IL1,IL2,IL3,IL4,IL5,IL6]),
     mp('dalmatia','Dalmatia','macedonia',1,2,2,[],[DA1,DA2,DA3,DA4,DA5,DA6]),
     mp('dacia','Dacia','macedonia',1,3,2,[],[DC1,DC2,DC3,DC4,DC5,DC6]),
+    mp('sarmatia','Sarmatia','persia',1,2,2,[],[SAR1,SAR2,SAR3,SAR4,SAR5,SAR6]),
     mp('moesia','Moesia','macedonia',1,2,2,[],[MO1,MO2,MO3,MO4,MO5,MO6]),
     mp('thrace','Thrace','macedonia',1,2,2,[],[TH1,TH2,TH3,TH4,TH5,TH6]),
     mp('macedonia_p','Macedonia','macedonia',2,3,5,['barracks'],[MA1,MA2,MA3,MA4,MA5,MA6]),
     mp('epirus','Epirus','greece',1,2,3,[],[EP1,EP2,EP3,EP4,EP5,EP6]),
     mp('thessaly','Thessaly','greece',2,2,3,[],[TS1,TS2,TS3,TS4,TS5]),
+    mp('aetolia','Aetolia','greece',1,2,2,[],[AE1,AE2,AE3,AE4,AE5,AE6]),
     mp('achaea','Achaea','greece',2,2,4,['barracks'],[AC1,AC2,AC3,AC4,AC5,AC6]),
     mp('attica','Attica','greece',3,2,4,[],[AT1,AT2,AT3,AT4,AT5,AT6]),
     mp('crete','Crete','greece',1,1,2,[],[CR1,CR2,CR3,CR4,CR5,CR6]),
-    // ASIA MINOR
+    mp('rhodes','Rhodes','greece',1,1,1,[],[RH1,RH2,RH3,RH4,RH5]),
+    // ASIA MINOR (expanded)
     mp('bithynia','Bithynia','persia',2,2,3,[],[BI1,BI2,BI3,BI4,BI5,BI6]),
+    mp('galatia','Galatia','persia',1,2,2,[],[GL1,GL2,GL3,GL4,GL5,GL6]),
     mp('pontus','Pontus','persia',1,3,3,[],[PO1,PO2,PO3,PO4,PO5,PO6]),
-    mp('asia_minor','Asia Minor','persia',2,2,3,[],[AM1,AM2,AM3,AM4,AM5,AM6,AM7]),
-    mp('cappadocia','Cappadocia','persia',1,2,3,['barracks'],[CA1,CA2,CA3,CA4,CA5,CA6,CA7]),
+    mp('asia_minor','Asia Minor','persia',2,2,3,[],[AM1,AM2,AM3,AM4,AM5,AM6]),
+    mp('phrygia','Phrygia','persia',1,2,2,[],[PH1,PH2,PH3,PH4,PH5,PH6]),
+    mp('cappadocia','Cappadocia','persia',1,2,3,['barracks'],[CA1,CA2,CA3,CA4,CA5,CA6]),
     mp('lycia','Lycia','persia',1,1,2,[],[LY1,LY2,LY3,LY4,LY5,LY6]),
     mp('cilicia','Cilicia','persia',1,1,2,[],[CL1,CL2,CL3,CL4,CL5,CL6]),
-    // LEVANT
+    // LEVANT (expanded)
     mp('armenia','Armenia','persia',1,3,3,[],[AR1,AR2,AR3,AR4,AR5,AR6]),
+    mp('commagene','Commagene','persia',1,2,2,[],[CM1,CM2,CM3,CM4,CM5,CM6]),
     mp('syria','Syria','persia',3,2,4,[],[SY1,SY2,SY3,SY4,SY5,SY6]),
     mp('judaea','Judaea','egypt',2,2,3,[],[JU1,JU2,JU3,JU4,JU5,JU6]),
-    mp('mesopotamia','Mesopotamia','persia',2,2,2,[],[ME1,ME2,ME3,ME4,ME5,ME6]),
+    mp('assyria','Assyria','persia',2,2,3,[],[AS1,AS2,AS3,AS4,AS5,AS6]),
+    mp('babylonia','Babylonia','persia',2,2,2,[],[BA1,BA2,BA3,BA4,BA5,BA6]),
     mp('arabia','Arabia','egypt',1,3,2,[],[AB1,AB2,AB3,AB4,AB5,AB6]),
     mp('cyprus','Cyprus','egypt',1,1,1,[],[CY1,CY2,CY3,CY4,CY5]),
     mp('sinai','Sinai','egypt',1,2,2,[],[SN1,SN2,SN3,SN4,SN5,SN6]),
-    // NORTH AFRICA (continuous strip)
+    // NORTH AFRICA (expanded with Saharan fringe)
     mp('mauretania','Mauretania','numidia',1,2,2,[],[NA1,NA2,NA3,NA4,NS3,NS2,NS1]),
     mp('numidia_w','Numidia Occ.','numidia',1,2,3,['barracks'],[NA4,NA5,NA6,NA7,NS7,NS6,NS5,NS4,NS3]),
     mp('numidia_e','Numidia Or.','numidia',1,2,3,[],[NA7,NA8,NA9,NA10,NS8,NS7]),
     mp('carthage_p','Carthage','carthage',3,3,5,['barracks'],[NA10,NA11,NA12,NS10,NS9,NS8]),
     mp('africa_prov','Africa Prov.','carthage',2,2,4,[],[NA12,NA13,NA14,NS12,NS11,NS10]),
     mp('tripolitania','Tripolitania','carthage',1,1,2,[],[NA14,NA15,NA16,NS13,NS12]),
-    mp('cyrenaica','Cyrenaica','egypt',1,1,2,[],[NA16,NA17,NA18,NA19,NS16,NS15,NS14,NS13]),
-    // EGYPT
+    mp('cyrenaica','Cyrenaica','egypt',1,1,2,[],[NA16,NA17,NA18,MM1,NS15,NS14,NS13]),
+    mp('gaetuli','Gaetulia','numidia',1,1,2,[],[SF1,SF2,SF3,SF4]),
+    mp('garamantes','Garamantes','numidia',1,1,1,[],[SF5,SF6,SF7,SF8]),
+    mp('phazania','Phazania','egypt',1,1,1,[],[SF9,SF10,SF11,SF12]),
+    // EGYPT (expanded)
+    mp('marmarica','Marmarica','egypt',1,1,2,[],[MM1,MM2,MM3,MM4,MM5,MM6]),
     mp('egypt_west','Libya Int.','egypt',1,1,2,[],[NA19,NA20,EG1,EG6,NS16]),
     mp('egypt_delta','Nile Delta','egypt',3,2,4,['barracks'],[EG1,EG2,EG3,EG4,EG5,EG6]),
     mp('egypt_upper','Upper Egypt','egypt',2,2,3,[],[EU1,EU2,EU3,EU4,EU5,EU6]),
@@ -276,115 +315,159 @@ function buildAntiquity(){
 }
 
 function buildNapoleonic(){
-  // Same approach: shared vertices for EU4-style tessellation
-  // British Isles
+  // British Isles + Wales
   const B1=[24,10],B2=[34,6],B3=[42,8],B4=[46,14],B5=[43,18],B6=[29,17],B7=[22,12];
-  const B8=[46,22],B9=[52,30],B10=[50,38],B11=[44,42],B12=[36,44],B13=[30,42],B14=[26,34],B15=[23,24],B16=[25,19];
+  const BW1=[25,19],BW2=[30,18],BW3=[36,22],BW4=[34,30],BW5=[28,32],BW6=[24,26]; // Wales
+  const B8=[46,22],B9=[52,30],B10=[50,38],B11=[44,42],B12=[36,44],B13=[34,30],B14=[28,32],B15=[26,34]; // England (adjusted)
   const IR1=[6,30],IR2=[16,26],IR3=[22,28],IR4=[22,38],IR5=[18,44],IR6=[10,44],IR7=[4,38];
-  // Iberia
+  // Iberia (5 provinces)
   const I1=[2,72],I2=[6,64],I3=[14,58],I4=[24,56],I5=[34,58],I6=[40,62],I7=[44,68],I8=[42,76],I9=[38,84],I10=[30,90],I11=[20,92],I12=[10,88],I13=[4,82],I14=[2,78];
-  const IJ=[24,74],IB=[12,82];
-  // France
+  const IJ=[24,74],IB=[12,82],IA=[18,64]; // Aragon junction
+  // France (6 provinces)
   const F1=[38,48],F2=[46,44],F3=[56,42],F4=[64,40],F5=[70,44],F6=[72,50],F7=[70,58],F8=[66,64],F9=[60,68],F10=[52,70],F11=[44,68],F12=[36,62],F13=[30,56],F14=[28,50];
   const FJ1=[52,50],FJ2=[62,52],FJ3=[48,60],FJ4=[58,60];
-  // Low Countries + Rhineland
+  const FBR=[38,52]; // Brittany junction
+  const FPR=[64,62]; // Provence split
+  // Low Countries + Rhineland + Württemberg
   const LC1=[64,34],LC2=[72,30],LC3=[80,32],LC4=[80,40],LC5=[74,42];
   const RH1=[80,40],RH2=[86,42],RH3=[88,50],RH4=[84,56],RH5=[78,54];
+  const WU1=[86,50],WU2=[92,50],WU3=[94,56],WU4=[92,62],WU5=[86,60]; // Württemberg
   // Germany
   const HA1=[80,24],HA2=[90,20],HA3=[100,22],HA4=[100,30],HA5=[92,34],HA6=[84,32];
   const SA1=[100,30],SA2=[108,28],SA3=[116,32],SA4=[116,40],SA5=[108,42],SA6=[100,38];
   const BA1=[88,50],BA2=[96,48],BA3=[104,50],BA4=[106,58],BA5=[100,62],BA6=[92,58];
   const SW1=[72,58],SW2=[80,56],SW3=[86,60],SW4=[84,66],SW5=[76,66];
-  // Prussia
+  // Prussia + Pomerania
   const PR1=[116,18],PR2=[126,14],PR3=[136,18],PR4=[136,26],PR5=[128,30],PR6=[120,28];
+  const PM1=[128,14],PM2=[138,10],PM3=[144,14],PM4=[144,22],PM5=[138,24],PM6=[130,20]; // Pomerania
   const SL1=[116,32],SL2=[124,30],SL3=[132,34],SL4=[132,42],SL5=[124,44],SL6=[118,40];
-  const EP1=[136,10],EP2=[146,6],EP3=[156,10],EP4=[156,20],EP5=[148,24],EP6=[140,20];
+  const EP1=[144,8],EP2=[154,4],EP3=[162,8],EP4=[162,18],EP5=[154,22],EP6=[146,18]; // E Prussia (adjusted)
   // Scandinavia
   const DK1=[92,14],DK2=[102,10],DK3=[110,12],DK4=[112,20],DK5=[106,24],DK6=[98,22];
   const SW_1=[108,0],SW_2=[120,0],SW_3=[128,4],SW_4=[130,12],SW_5=[122,16],SW_6=[114,12];
   const NW1=[82,0],NW2=[92,0],NW3=[100,4],NW4=[102,12],NW5=[94,16],NW6=[86,12];
-  // Austria
+  // Austria + Galicia + Transylvania
   const AU1=[104,50],AU2=[112,48],AU3=[120,50],AU4=[124,58],AU5=[120,64],AU6=[112,64],AU7=[106,60];
   const BH1=[116,40],BH2=[124,38],BH3=[130,42],BH4=[130,50],BH5=[124,52],BH6=[118,48];
-  const HU1=[124,52],HU2=[132,50],HU3=[142,52],HU4=[146,60],HU5=[142,68],HU6=[134,70],HU7=[126,66],HU8=[122,58];
+  const HU1=[124,52],HU2=[132,50],HU3=[140,52],HUJ=[138,60],HU5=[134,66],HU6=[126,66],HU7=[122,58]; // Hungary (smaller)
+  const TR1=[140,52],TR2=[148,50],TR3=[154,54],TR4=[152,62],TR5=[146,66],TR6=[140,64]; // Transylvania
+  const GA1=[132,34],GA2=[142,32],GA3=[150,36],GA4=[150,46],GA5=[142,48],GA6=[134,42]; // Galicia
   const TY1=[92,60],TY2=[100,62],TY3=[106,66],TY4=[104,74],TY5=[96,76],TY6=[90,70];
-  // Italy
-  const PI1=[66,68],PI2=[74,66],PI3=[82,70],PI4=[82,78],PI5=[76,82],PI6=[68,80];
-  const LO1=[82,70],LO2=[90,70],LO3=[96,76],LO4=[98,84],LO5=[92,88],LO6=[84,86],LO7=[80,80];
-  const PA1=[92,88],PA2=[100,84],PA3=[108,86],PA4=[112,94],PA5=[106,100],PA6=[98,98];
-  const NP1=[106,100],NP2=[114,96],NP3=[122,100],NP4=[126,110],NP5=[120,116],NP6=[110,114];
-  const SC1=[100,118],SC2=[110,114],SC3=[116,118],SC4=[114,126],SC5=[104,128],SC6=[98,124];
-  const SD1=[76,90],SD2=[82,88],SD3=[84,94],SD4=[82,102],SD5=[76,104],SD6=[74,96];
-  // Poland/Russia
-  const PL1=[140,26],PL2=[150,22],PL3=[160,26],PL4=[160,38],PL5=[152,42],PL6=[142,38];
-  const LT1=[156,10],LT2=[166,6],LT3=[176,10],LT4=[176,22],LT5=[168,26],LT6=[160,22];
-  const MO1=[178,0],MO2=[196,0],MO3=[210,4],MO4=[214,18],MO5=[206,26],MO6=[194,28],MO7=[184,22],MO8=[178,12];
-  const UK1=[162,34],UK2=[172,30],UK3=[182,34],UK4=[188,44],UK5=[184,54],UK6=[176,56],UK7=[166,52],UK8=[160,44];
+  // Italy (more provinces)
+  const PI1=[66,68],PI2=[74,66],PI3=[82,70],PIJ=[78,74],PI5=[72,76],PI6=[68,80]; // Piedmont
+  const VN1=[78,74],VN2=[86,72],VN3=[90,76],VN4=[88,82],VN5=[82,80]; // Venetia
+  const TC1=[82,80],TC2=[90,80],TC3=[94,86],TC4=[92,92],TC5=[86,92],TC6=[82,88]; // Tuscany
+  const LO1=[90,70],LO2=[96,70],LO3=[98,76],LO4=[96,82],LO5=[90,80],LO6=[86,76]; // Lombardy (adjusted)
+  const PA1=[92,92],PA2=[100,88],PA3=[108,90],PA4=[112,98],PA5=[106,104],PA6=[98,102]; // Papal
+  const NP1=[106,104],NP2=[114,100],NP3=[122,104],NP4=[126,114],NP5=[120,120],NP6=[110,118]; // Naples
+  const SC1=[100,122],SC2=[110,118],SC3=[116,122],SC4=[114,130],SC5=[104,132],SC6=[98,128]; // Sicily
+  const SD1=[76,94],SD2=[82,92],SD3=[84,98],SD4=[82,106],SD5=[76,108],SD6=[74,100]; // Sardinia
+  const MT1=[94,114],MT2=[100,112],MT3=[102,116],MT4=[98,120],MT5=[92,118]; // Malta
+  // Poland/Russia + Courland + Smolensk
+  const PL1=[144,26],PL2=[154,22],PL3=[162,26],PL4=[162,38],PL5=[154,42],PL6=[146,38];
+  const CU1=[162,8],CU2=[170,4],CU3=[178,8],CU4=[178,18],CU5=[170,22],CU6=[164,16]; // Courland
+  const LT1=[170,18],LT2=[180,14],LT3=[188,18],LT4=[188,28],LT5=[180,32],LT6=[172,28]; // Lithuania (adjusted)
+  const SM1=[188,6],SM2=[200,4],SM3=[210,8],SM4=[210,20],SM5=[202,24],SM6=[192,20]; // Smolensk
+  const MO1=[196,0],MO2=[210,0],MO3=[224,4],MO4=[226,16],MO5=[218,22],MO6=[208,18],MO7=[198,14]; // Moscow (adjusted NE)
+  const UK1=[166,36],UK2=[176,32],UK3=[186,36],UK4=[192,46],UK5=[188,56],UK6=[180,58],UK7=[170,54],UK8=[164,46];
+  const DN1=[186,52],DN2=[196,48],DN3=[204,52],DN4=[204,64],DN5=[196,68],DN6=[188,64]; // Don/Crimea region
   const FI1=[144,0],FI2=[156,0],FI3=[168,4],FI4=[170,12],FI5=[164,16],FI6=[154,12],FI7=[146,6];
-  // Balkans
-  const CR1=[120,64],CR2=[128,64],CR3=[136,70],CR4=[134,78],CR5=[126,80],CR6=[118,76],CR7=[116,70];
-  const SE1=[136,70],SE2=[144,68],SE3=[152,72],SE4=[152,80],SE5=[144,84],SE6=[136,82],SE7=[132,76];
-  const WA1=[152,56],WA2=[162,52],WA3=[172,56],WA4=[172,66],WA5=[166,72],WA6=[156,70],WA7=[150,64];
-  const GR1=[134,84],GR2=[144,84],GR3=[150,88],GR4=[150,98],GR5=[144,104],GR6=[136,102],GR7=[132,94];
-  // Ottoman
-  const TN1=[156,74],TN2=[166,72],TN3=[174,76],TN4=[176,84],TN5=[170,90],TN6=[160,88],TN7=[154,82];
-  const AN1=[176,72],AN2=[188,68],AN3=[200,72],AN4=[206,82],AN5=[198,90],AN6=[188,92],AN7=[180,88],AN8=[174,82];
-  const LV1=[198,90],LV2=[208,86],LV3=[216,92],LV4=[214,104],LV5=[204,110],LV6=[194,106],LV7=[192,96];
+  // Balkans + Bosnia
+  const CR1=[120,64],CR2=[128,64],CR3=[134,70],CRJ=[130,74],CR5=[124,76],CR6=[118,76],CR7=[116,70]; // Croatia
+  const BS1=[130,74],BS2=[138,72],BS3=[142,78],BS4=[140,84],BS5=[134,84],BS6=[130,80]; // Bosnia
+  const SE1=[142,72],SE2=[150,70],SE3=[156,74],SE4=[156,82],SE5=[148,86],SE6=[140,84]; // Serbia
+  const WA1=[154,58],WA2=[164,54],WA3=[174,58],WA4=[174,68],WA5=[166,72],WA6=[158,70],WA7=[152,64];
+  const GR1=[138,88],GR2=[148,86],GR3=[154,90],GR4=[154,100],GR5=[148,106],GR6=[140,104],GR7=[136,96]; // Greece
+  // Ottoman (split Anatolia)
+  const TN1=[158,76],TN2=[168,74],TN3=[176,78],TN4=[178,86],TN5=[172,92],TN6=[162,90],TN7=[156,84]; // Thrace
+  const AW1=[178,74],AW2=[190,70],AW3=[198,74],AW4=[198,84],AW5=[192,88],AW6=[184,86],AW7=[178,82]; // W Anatolia
+  const AE1=[198,74],AE2=[210,70],AE3=[220,76],AE4=[218,86],AE5=[210,90],AE6=[200,86]; // E Anatolia
+  const LV1=[200,90],LV2=[212,86],LV3=[220,92],LV4=[218,106],LV5=[208,112],LV6=[198,108],LV7=[196,98]; // Levant
   // N Africa
   const MR1=[2,88],MR2=[12,84],MR3=[22,88],MR4=[22,96],MR5=[14,100],MR6=[4,98];
   const AL1=[34,82],AL2=[46,78],AL3=[58,82],AL4=[58,90],AL5=[48,94],AL6=[36,92];
   const TU1=[64,86],TU2=[74,84],TU3=[80,88],TU4=[78,96],TU5=[70,98],TU6=[64,94];
-  const EGN1=[180,100],EGN2=[190,96],EGN3=[200,100],EGN4=[200,112],EGN5=[190,118],EGN6=[180,114],EGN7=[176,106];
+  const LY1=[86,92],LY2=[96,88],LY3=[106,92],LY4=[106,100],LY5=[96,104],LY6=[86,100]; // Libya
+  const EGN1=[182,102],EGN2=[192,98],EGN3=[202,102],EGN4=[202,114],EGN5=[192,120],EGN6=[182,116],EGN7=[178,108];
 
   return [
+    // BRITISH ISLES (4)
     mp('ireland','Ireland','britain',1,2,2,[],[IR1,IR2,IR3,IR4,IR5,IR6,IR7]),
     mp('scotland','Scotland','britain',1,3,3,[],[B1,B2,B3,B4,B5,B6,B7]),
-    mp('england','England','britain',3,3,5,['barracks'],[B6,B5,B8,B9,B10,B11,B12,B13,B14,B15,B16]),
-    mp('normandy','Normandy','france',2,2,4,[],[F14,F1,F2,FJ1,FJ3,F13]),
+    mp('wales','Wales','britain',1,2,2,[],[BW1,BW2,BW3,BW4,BW5,BW6]),
+    mp('england','England','britain',3,3,5,['barracks'],[B5,B8,B9,B10,B11,B12,B13,B14,B15]),
+    // FRANCE (6)
+    mp('brittany','Brittany','france',1,2,3,[],[F14,F1,FBR,F13]),
+    mp('normandy','Normandy','france',2,2,4,[],[FBR,F2,FJ1,FJ3,F13]),
     mp('paris','Paris','france',3,3,6,['barracks'],[F2,F3,F4,F5,FJ2,FJ1]),
-    mp('aquitaine','Aquitaine','france',2,1,4,[],[F13,FJ3,FJ4,F9,F10,F11,F12]),
-    mp('lyon','Lyon','france',2,2,5,[],[FJ1,FJ2,F6,F7,F8,FJ4,FJ3]),
-    mp('portugal','Portugal','spain',1,2,2,[],[I1,I2,I3,IB,I14]),
-    mp('castile','Castile','spain',2,2,3,['barracks'],[I3,I4,I5,IJ,IB]),
-    mp('andalusia','Andalusia','spain',2,2,3,[],[IB,IJ,I9,I10,I11,I12,I13]),
-    mp('catalonia','Catalonia','spain',2,1,3,[],[I5,I6,I7,I8,I9,IJ]),
+    mp('aquitaine','Aquitaine','france',2,1,4,[],[F13,FJ3,FJ4,F10,F11,F12]),
+    mp('lyon','Lyon','france',2,2,4,[],[FJ1,FJ2,F6,F7,FPR,FJ4,FJ3]),
+    mp('provence','Provence','france',2,1,3,[],[FPR,F8,F9,F10,FJ4]),
+    // IBERIA (5)
+    mp('portugal','Portugal','spain',1,2,2,[],[I1,I2,I3,IA,I14]),
+    mp('castile','Castile','spain',2,2,3,['barracks'],[IA,I4,I5,IJ,IB,I13,I14]),
+    mp('aragon','Aragon','spain',1,2,2,[],[I5,I6,I7,I8,IJ]),
+    mp('andalusia','Andalusia','spain',2,2,3,[],[IB,IJ,I8,I9,I10,I11,I12,I13]),
+    mp('catalonia','Catalonia','spain',2,1,3,[],[I3,I4,I5,IA]),
+    // LOW COUNTRIES & GERMANY (8)
     mp('netherlands','Netherlands','france',3,1,3,[],[F4,LC1,LC2,LC3,LC4,LC5,F5]),
     mp('rhineland','Rhineland','france',2,2,3,[],[LC4,RH1,RH2,RH3,RH4,RH5]),
+    mp('wuerttemberg','Württemberg','france',1,2,2,[],[WU1,WU2,WU3,WU4,WU5]),
     mp('hanover','Hanover','prussia',2,2,3,[],[LC3,HA1,HA2,HA3,HA4,HA5,HA6]),
     mp('saxony','Saxony','prussia',2,2,3,[],[SA1,SA2,SA3,SA4,SA5,SA6]),
     mp('bavaria','Bavaria','austria',2,2,3,[],[BA1,BA2,BA3,BA4,BA5,BA6]),
     mp('switzerland','Switzerland','france',1,4,2,[],[SW1,SW2,SW3,SW4,SW5]),
+    // PRUSSIA (4)
     mp('brandenburg','Brandenburg','prussia',2,3,5,['barracks'],[PR1,PR2,PR3,PR4,PR5,PR6]),
+    mp('pomerania','Pomerania','prussia',1,2,3,[],[PM1,PM2,PM3,PM4,PM5,PM6]),
     mp('silesia','Silesia','prussia',2,2,4,[],[SL1,SL2,SL3,SL4,SL5,SL6]),
     mp('east_prussia','E. Prussia','prussia',1,3,4,[],[EP1,EP2,EP3,EP4,EP5,EP6]),
+    // SCANDINAVIA (3)
     mp('denmark','Denmark','sweden',1,2,2,[],[DK1,DK2,DK3,DK4,DK5,DK6]),
     mp('sweden_s','Sweden','sweden',2,2,3,['barracks'],[SW_1,SW_2,SW_3,SW_4,SW_5,SW_6]),
     mp('norway','Norway','sweden',1,3,2,[],[NW1,NW2,NW3,NW4,NW5,NW6]),
+    // AUSTRIA (6)
     mp('austria_p','Austria','austria',3,3,5,['barracks'],[AU1,AU2,AU3,AU4,AU5,AU6,AU7]),
     mp('bohemia','Bohemia','austria',2,2,4,[],[BH1,BH2,BH3,BH4,BH5,BH6]),
-    mp('hungary','Hungary','austria',2,2,4,[],[HU1,HU2,HU3,HU4,HU5,HU6,HU7,HU8]),
+    mp('galicia','Galicia','austria',1,2,3,[],[GA1,GA2,GA3,GA4,GA5,GA6]),
+    mp('hungary','Hungary','austria',2,2,3,[],[HU1,HU2,HU3,HUJ,HU5,HU6,HU7]),
+    mp('transylvania','Transylvania','austria',1,2,2,[],[TR1,TR2,TR3,TR4,TR5,TR6]),
     mp('tyrol','Tyrol','austria',1,3,3,[],[TY1,TY2,TY3,TY4,TY5,TY6]),
-    mp('piedmont','Piedmont','france',2,2,3,[],[PI1,PI2,PI3,PI4,PI5,PI6]),
-    mp('lombardy','Lombardy','austria',2,2,3,[],[LO1,LO2,LO3,LO4,LO5,LO6,LO7]),
+    // ITALY (8)
+    mp('piedmont','Piedmont','france',2,2,3,[],[PI1,PI2,PI3,PIJ,PI5,PI6]),
+    mp('venetia','Venetia','austria',2,2,3,[],[VN1,VN2,VN3,VN4,VN5]),
+    mp('lombardy','Lombardy','austria',2,2,3,[],[LO1,LO2,LO3,LO4,LO5,LO6]),
+    mp('tuscany','Tuscany','austria',1,1,2,[],[TC1,TC2,TC3,TC4,TC5,TC6]),
     mp('papal','Papal States','austria',2,1,2,[],[PA1,PA2,PA3,PA4,PA5,PA6]),
     mp('naples','Naples','spain',2,1,2,[],[NP1,NP2,NP3,NP4,NP5,NP6]),
     mp('sicily','Sicily','spain',1,1,2,[],[SC1,SC2,SC3,SC4,SC5,SC6]),
     mp('sardinia','Sardinia','france',1,1,1,[],[SD1,SD2,SD3,SD4,SD5,SD6]),
+    mp('malta','Malta','britain',1,1,1,[],[MT1,MT2,MT3,MT4,MT5]),
+    // POLAND / RUSSIA (7)
     mp('poland','Poland','russia',2,1,3,[],[PL1,PL2,PL3,PL4,PL5,PL6]),
+    mp('courland','Courland','russia',1,2,2,[],[CU1,CU2,CU3,CU4,CU5,CU6]),
     mp('lithuania','Lithuania','russia',1,2,3,[],[LT1,LT2,LT3,LT4,LT5,LT6]),
-    mp('moscow','Moscow','russia',3,3,5,['barracks'],[MO1,MO2,MO3,MO4,MO5,MO6,MO7,MO8]),
+    mp('smolensk','Smolensk','russia',2,2,3,[],[SM1,SM2,SM3,SM4,SM5,SM6]),
+    mp('moscow','Moscow','russia',3,3,5,['barracks'],[MO1,MO2,MO3,MO4,MO5,MO6,MO7]),
     mp('ukraine','Ukraine','russia',2,1,3,[],[UK1,UK2,UK3,UK4,UK5,UK6,UK7,UK8]),
+    mp('don','Don Region','russia',1,1,2,[],[DN1,DN2,DN3,DN4,DN5,DN6]),
     mp('finland','Finland','russia',1,3,2,[],[FI1,FI2,FI3,FI4,FI5,FI6,FI7]),
-    mp('croatia','Croatia','austria',1,2,2,[],[CR1,CR2,CR3,CR4,CR5,CR6,CR7]),
-    mp('serbia','Serbia','ottoman',1,2,3,[],[SE1,SE2,SE3,SE4,SE5,SE6,SE7]),
+    // BALKANS (5)
+    mp('croatia','Croatia','austria',1,2,2,[],[CR1,CR2,CR3,CRJ,CR5,CR6,CR7]),
+    mp('bosnia','Bosnia','ottoman',1,2,2,[],[BS1,BS2,BS3,BS4,BS5,BS6]),
+    mp('serbia','Serbia','ottoman',1,2,3,[],[SE1,SE2,SE3,SE4,SE5,SE6]),
     mp('wallachia','Wallachia','ottoman',1,1,2,[],[WA1,WA2,WA3,WA4,WA5,WA6,WA7]),
     mp('greece_nap','Greece','ottoman',1,2,3,[],[GR1,GR2,GR3,GR4,GR5,GR6,GR7]),
+    // OTTOMAN (5)
     mp('thrace_nap','Thrace','ottoman',2,2,4,['barracks'],[TN1,TN2,TN3,TN4,TN5,TN6,TN7]),
-    mp('anatolia','Anatolia','ottoman',2,2,4,[],[AN1,AN2,AN3,AN4,AN5,AN6,AN7,AN8]),
+    mp('w_anatolia','W. Anatolia','ottoman',2,2,3,[],[AW1,AW2,AW3,AW4,AW5,AW6,AW7]),
+    mp('e_anatolia','E. Anatolia','ottoman',1,2,3,[],[AE1,AE2,AE3,AE4,AE5,AE6]),
     mp('levant','Levant','ottoman',2,2,3,[],[LV1,LV2,LV3,LV4,LV5,LV6,LV7]),
+    // N AFRICA (5)
     mp('morocco','Morocco','ottoman',1,2,2,[],[MR1,MR2,MR3,MR4,MR5,MR6]),
     mp('algeria','Algeria','ottoman',1,2,2,[],[AL1,AL2,AL3,AL4,AL5,AL6]),
     mp('tunis','Tunis','ottoman',1,1,2,[],[TU1,TU2,TU3,TU4,TU5,TU6]),
+    mp('libya','Libya','ottoman',1,1,1,[],[LY1,LY2,LY3,LY4,LY5,LY6]),
     mp('egypt_nap','Egypt','ottoman',2,1,2,[],[EGN1,EGN2,EGN3,EGN4,EGN5,EGN6,EGN7]),
   ];
 }
