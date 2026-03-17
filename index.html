@@ -142,11 +142,11 @@ const mp = (id,name,owner,income,defense,army,buildings,verts) => ({id,name,owne
 
 function buildAntiquity(){
   // === SHARED VERTICES ===
-  // British Isles
-  const B1=[24,5],B2=[34,2],B3=[42,4],B4=[46,10],B5=[43,14],B6=[29,13],B7=[22,8];
-  const B8=[46,17],B9=[51,24],B10=[49,31],B11=[43,35],B12=[35,37],B13=[30,34],B14=[26,27],B15=[23,19],B16=[25,15];
-  // Ireland
-  const HI1=[8,10],HI2=[16,7],HI3=[22,10],HI4=[22,18],HI5=[18,24],HI6=[10,24],HI7=[4,18];
+  // British Isles — narrow, tall island shape
+  const B1=[28,4],B2=[34,2],B3=[38,5],B4=[40,10],B5=[38,14],B6=[32,13],B7=[27,8];
+  const B8=[40,17],B9=[44,24],B10=[42,30],B11=[38,34],B12=[34,36],B13=[31,33],B14=[29,27],B15=[27,20],B16=[29,15];
+  // Ireland — smaller
+  const HI1=[12,12],HI2=[18,9],HI3=[23,12],HI4=[23,18],HI5=[20,22],HI6=[14,22],HI7=[10,17];
   // Iberian Peninsula — 4 provinces now
   const I1=[4,58],I2=[8,50],I3=[16,47],I4=[26,46],I5=[34,47],I6=[38,50],I7=[42,54],I8=[40,62],I9=[38,70],I10=[32,77],I11=[22,80],I12=[12,78],I13=[6,72],I14=[4,65];
   const IJ=[24,62],IB=[14,70],IGJ=[14,56]; // added Gallaecia junction
@@ -211,20 +211,20 @@ function buildAntiquity(){
   const AS1=[198,46],AS2=[208,42],AS3=[216,48],AS4=[214,56],AS5=[206,56],AS6=[200,52]; // Assyria
   const BA1=[200,56],BA2=[208,56],BA3=[216,60],BA4=[214,70],BA5=[206,68],BA6=[200,64]; // Babylonia
   const AB1=[194,98],AB2=[204,94],AB3=[214,100],AB4=[210,112],AB5=[198,114],AB6=[190,106];
-  // N. Africa — more provinces
-  const NA1=[6,78],NA2=[16,76],NA3=[24,78],NA4=[34,76],NA5=[44,78],NA6=[54,76],NA7=[64,78],NA8=[74,76],NA9=[80,78],NA10=[86,80];
-  const NA11=[92,82],NA12=[100,84],NA13=[108,86],NA14=[116,88],NA15=[124,86],NA16=[132,88],NA17=[140,86],NA18=[148,88],NA19=[156,86],NA20=[164,90];
-  const NS1=[8,86],NS2=[18,88],NS3=[28,86],NS4=[38,86],NS5=[48,86],NS6=[58,86],NS7=[68,86],NS8=[78,86];
-  const NS9=[88,90],NS10=[98,92],NS11=[108,94],NS12=[118,96],NS13=[130,96],NS14=[140,94],NS15=[150,96],NS16=[160,98];
+  // N. Africa — pushed south so Sicily doesn't overlap
+  const NA1=[6,90],NA2=[16,88],NA3=[24,90],NA4=[34,88],NA5=[44,90],NA6=[54,88],NA7=[64,90],NA8=[74,88],NA9=[80,90],NA10=[86,92];
+  const NA11=[92,94],NA12=[100,96],NA13=[108,98],NA14=[116,100],NA15=[124,98],NA16=[132,100],NA17=[140,98],NA18=[148,100],NA19=[156,98],NA20=[164,102];
+  const NS1=[8,98],NS2=[18,100],NS3=[28,98],NS4=[38,98],NS5=[48,98],NS6=[58,98],NS7=[68,98],NS8=[78,98];
+  const NS9=[88,102],NS10=[98,104],NS11=[108,106],NS12=[118,108],NS13=[130,108],NS14=[140,106],NS15=[150,108],NS16=[160,110];
   // Saharan fringe (south of Numidia/Tripolitania)
-  const SF1=[38,94],SF2=[58,94],SF3=[58,102],SF4=[38,102]; // Gaetuli
-  const SF5=[68,94],SF6=[88,94],SF7=[88,102],SF8=[68,102]; // Garamantes
-  const SF9=[108,100],SF10=[130,100],SF11=[130,108],SF12=[108,108]; // Phazania
+  const SF1=[38,106],SF2=[58,106],SF3=[58,114],SF4=[38,114]; // Gaetuli
+  const SF5=[68,106],SF6=[88,106],SF7=[88,114],SF8=[68,114]; // Garamantes
+  const SF9=[108,112],SF10=[130,112],SF11=[130,120],SF12=[108,120]; // Phazania
   // Egypt + Marmarica
-  const MM1=[148,92],MM2=[156,90],MM3=[162,94],MM4=[160,100],MM5=[152,100],MM6=[148,96]; // Marmarica (new)
-  const EG1=[160,100],EG2=[170,98],EG3=[178,100],EG4=[176,108],EG5=[168,110],EG6=[160,108];
-  const EU1=[168,110],EU2=[178,108],EU3=[184,114],EU4=[180,122],EU5=[170,120],EU6=[164,116];
-  const SN1=[178,92],SN2=[186,88],SN3=[190,94],SN4=[186,104],SN5=[180,102],SN6=[176,98];
+  const MM1=[148,104],MM2=[156,102],MM3=[162,106],MM4=[160,112],MM5=[152,112],MM6=[148,108]; // Marmarica
+  const EG1=[160,112],EG2=[170,110],EG3=[178,112],EG4=[176,120],EG5=[168,122],EG6=[160,120];
+  const EU1=[168,122],EU2=[178,120],EU3=[184,126],EU4=[180,134],EU5=[170,132],EU6=[164,128];
+  const SN1=[178,104],SN2=[186,100],SN3=[190,106],SN4=[186,116],SN5=[180,114],SN6=[176,110];
   const CY1=[160,78],CY2=[170,76],CY3=[174,80],CY4=[168,84],CY5=[158,82];
 
   return [
@@ -473,7 +473,7 @@ function buildNapoleonic(){
 }
 
 const ERAS={
-  antiquity:{name:'Antiquity — 200 BC',viewBox:'0 0 230 130',buildProvs:buildAntiquity,
+  antiquity:{name:'Antiquity — 200 BC',viewBox:'0 0 230 145',buildProvs:buildAntiquity,
     factions:{rome:{name:'Rome',color:'#c0392b',treasury:30},carthage:{name:'Carthage',color:'#8e44ad',treasury:35},greece:{name:'Greece',color:'#2980b9',treasury:20},macedonia:{name:'Macedonia',color:'#d4ac0d',treasury:25},egypt:{name:'Egypt',color:'#e67e22',treasury:35},persia:{name:'Persia',color:'#1abc9c',treasury:30},gaul:{name:'Gaul',color:'#27ae60',treasury:15},numidia:{name:'Numidia',color:'#d35400',treasury:15}},
     desc:{rome:'Disciplined legions and grand ambitions.',carthage:'Wealthy trading empire of the western Med.',greece:'Cradle of civilization, culturally supreme.',macedonia:'Heirs of Alexander, a once-great empire.',egypt:'Ancient kingdom of the Nile, rich and old.',persia:'Seleucid remnant — vast eastern lands.',gaul:'Fierce Celtic tribes united against outsiders.',numidia:'Desert horsemen and raiders of N. Africa.'}},
   napoleonic:{name:'Napoleonic Wars — 1805',viewBox:'0 0 230 140',buildProvs:buildNapoleonic,
